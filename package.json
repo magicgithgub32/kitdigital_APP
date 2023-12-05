@@ -17,7 +17,8 @@
     "checkRegisteredInAceleraPyme": "node src/scripts/checkRegisteredInAceleraPymeInSalesforce.js",
     "checkAceleraPymeAccountActivatedInSalesforce": "node src/scripts/checkAceleraPymeAccountActivatedInSalesforce",
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "build": "echo 'build command'"
   },
   "keywords": [],
   "author": "",
