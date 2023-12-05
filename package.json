@@ -1,0 +1,47 @@
+{
+  "name": "kitdigital_app_back",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "requestKitDigital": "node src/scripts/requestKitDigital.js",
+    "registerInAceleraPyme": "node src/scripts/registerInAceleraPyme.js",
+    "selectCustomerPassw": "node src/scripts/selectCustomerPassw.js",
+    "diagnosisDigitalTest": "node src/scripts/diagnosisDigitalTest.js",
+    "transfDigitalTest": "node src/scripts/transfDigitalTest.js",
+    "ciberSeguridadTest": "node src/scripts/ciberSeguridadTest.js",
+    "requestBono": "node src/scripts/requestBono.js",
+    "checkReadyToRequestBonoAtSalesForce": "node src/scripts/checkReadyToRequestBonoAtSalesForce.js",
+    "checkRegisteredInAceleraPyme": "node src/scripts/checkRegisteredInAceleraPymeInSalesforce.js",
+    "checkAceleraPymeAccountActivatedInSalesforce": "node src/scripts/checkAceleraPymeAccountActivatedInSalesforce",
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chromium": "^3.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "fast-csv": "^4.3.6",
+    "mailparser": "^3.6.5",
+    "minimist": "^1.2.8",
+    "moment": "^2.29.4",
+    "multer": "^1.4.5-lts.1",
+    "node-fetch": "^3.3.2",
+    "node-imap": "^0.9.6",
+    "path": "^0.12.7",
+    "pino": "^8.16.2",
+    "pino-pretty": "^10.2.3",
+    "request": "^2.88.2",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2",
+    "playwright": "^1.40.1"
+  }
+}
