@@ -7,6 +7,7 @@ const checkAceleraPymeAccountActivatedInSalesforce = require("./checkAceleraPyme
 // const transfDigitalTest = require("./transfDigitalTest");
 const diagnosisDigitalTest = require("./diagnosisDigitalTest");
 const checkReadyToRequestBonoAtSalesforce = require("./checkReadyToRequestBonoAtSalesforce");
+const requestBono = require("./requestBono");
 
 const requestKitDigital = async (uploadedFilePath) => {
   try {
@@ -30,6 +31,7 @@ const requestKitDigital = async (uploadedFilePath) => {
       let checkedRegisteredInAceleraPymeInSalesforce;
       let checkedAceleraPymeAccountActivatedAtSalesforce;
       let readyToRequestBonoAtSalesforceChecked;
+      let checkedProcessCompletedAtSalesForce;
 
       if (registeredInAceleraPyme?.success) {
         checkedRegisteredInAceleraPymeInSalesforce =
@@ -58,6 +60,16 @@ const requestKitDigital = async (uploadedFilePath) => {
       }
       result.flow.readyToRequestBonoAtSalesforceChecked =
         readyToRequestBonoAtSalesforceChecked;
+
+      // const bonoRequested = await requestBono(customer);
+      // result.flow.bonoRequested = bonoRequested;
+
+      // if (bonoRequested && bonoRequested.flow.success) {
+      //   checkedProcessCompletedAtSalesForce =
+      //     await checkedProcessCompletedAtSalesForce(customer);
+      // }
+      // result.flow.checkedProcessCompletedAtSalesForce =
+      //   checkedProcessCompletedAtSalesForce;
 
       results.push(result);
     }

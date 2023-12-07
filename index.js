@@ -7,9 +7,7 @@ const PORT = Number(process.env.PORT);
 
 server.use(
   cors({
-    origin: (origin, callback) => {
-      callback(null, true);
-    },
+    origin: "https://declarando-kit-digital.netlify.app/",
   })
 );
 

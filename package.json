@@ -16,6 +16,7 @@
     "checkReadyToRequestBonoAtSalesForce": "node src/scripts/checkReadyToRequestBonoAtSalesForce.js",
     "checkRegisteredInAceleraPyme": "node src/scripts/checkRegisteredInAceleraPymeInSalesforce.js",
     "checkAceleraPymeAccountActivatedInSalesforce": "node src/scripts/checkAceleraPymeAccountActivatedInSalesforce",
+    "checkProcessCompletedAtSalesForce": "node src/scripts/checkProcessCompletedAtSalesForce.js",
     "start": "node index.js",
     "dev": "nodemon index.js",
     "build": "echo 'build command'"

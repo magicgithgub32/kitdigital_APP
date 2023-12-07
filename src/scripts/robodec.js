@@ -33,14 +33,13 @@ const initContextWithDialogHandler = async ({ url }) => {
   const { chromium } = require("playwright");
 
   const browser = await chromium.launch({
-    headless: false,
+    headless: true,
     args: [
       "--no-default-browser-check",
       "--no-first-run",
       "--disable-extensions",
       "--ignore-certificate-errors",
       "--autoplay-policy=no-user-gesture-required",
-      "--no-first-run",
     ],
   });
   const page = await browser.newPage();
@@ -261,7 +260,7 @@ const openSalesforceAndGoToCustomerAccount = async (customer) => {
   await pressKeyByPlaceholder(page, "Search...", "Enter");
 
   await page
-    .getByRole("link", { name: `Kit Digital - ${customer.Email}` })
+    .getByRole("link", { name: `Kit Digital - ${cleanedEmail}` })
     .click();
   await delay(2000);
 
