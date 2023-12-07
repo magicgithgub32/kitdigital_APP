@@ -18,5 +18,5 @@ const storage = multer.diskStorage({
   },
 });
 
-const uploadExcelFile = multer({ storage }).single("excelFile");
+const uploadExcelFile = multer({ storage });
 module.exports = uploadExcelFile;
