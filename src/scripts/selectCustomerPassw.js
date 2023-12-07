@@ -88,7 +88,11 @@ const selectCustomerPassw = async (customer) => {
         await closeContext(browser);
         await myImap.end();
 
-        return result;
+        return {
+          success: true,
+          message: "Activated account successfully",
+          customer,
+        };
       } else {
         return {
           success: false,
