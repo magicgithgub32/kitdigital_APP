@@ -5,9 +5,16 @@ const router = require("./src/api/routes/file-routes");
 const server = express();
 const PORT = Number(process.env.PORT);
 
+// server.use(
+//   cors({
+//     origin: "https://declarando-kit-digital.netlify.app/",
+//   })
+// );
 server.use(
   cors({
-    origin: "https://declarando-kit-digital.netlify.app/",
+    origin: (origin, callback) => {
+      callback(null, true);
+    },
   })
 );
 
