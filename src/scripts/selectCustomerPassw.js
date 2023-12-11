@@ -105,6 +105,7 @@ const selectCustomerPassw = async (customer) => {
     return { success: false, message: "Error processing the activation link" };
   } catch (error) {
     console.error("Error:", error);
+    return { success: false, message: "Account activation failed" };
   }
 };
 
