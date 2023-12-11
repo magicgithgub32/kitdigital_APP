@@ -102,7 +102,10 @@ const selectCustomerPassw = async (customer) => {
     }
 
     await myImap.end();
-    return { success: false, message: "Error processing the activation link" };
+    return {
+      success: false,
+      message: "Error while checking activation link in mailbox",
+    };
   } catch (error) {
     console.error("Error:", error);
     return { success: false, message: "Account activation failed" };
