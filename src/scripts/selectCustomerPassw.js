@@ -90,7 +90,7 @@ const selectCustomerPassw = async (customer) => {
 
         return {
           success: true,
-          message: "Activated account successfully",
+          message: "Account successfully activated",
           customer,
         };
       } else {
