@@ -31,10 +31,16 @@ const requestBono_URL =
   "https://sede.red.gob.es/convocatorias-y-ayudas?field_fecha_fin_plazo_value=1";
 
 const requestBono = async (customer) => {
-  try {
+  /*try {
     const { page, browser } = await initContextWithDialogHandler({
       url: requestBono_URL,
     });
+    */
+
+    try {
+      const { page, browser } = await initContext({
+        url: requestBono_URL,
+      });
 
     // const browser = await chromium.launch({ headless: false });
     // const context = await browser.newContext();
@@ -160,6 +166,8 @@ const requestBono = async (customer) => {
   }
 };
 
-// requestBono();
+requestBono();
 
-module.exports = requestBono;
+/*
+module.exports = requestBono
+*/
