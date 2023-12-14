@@ -93,7 +93,7 @@ const requestBono = async () => {
     // await page.getByRole("link", { name: "C022/22-SI" }).click();
     // await delay(2000);
 
-    const segmento = await tipoDeSegmento(customer);
+    const segmento = tipoDeSegmento(customer);
 
     await codigoSegmentoToClick(page, segmento, delay);
 
