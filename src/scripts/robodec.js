@@ -495,6 +495,39 @@ const clickSiguienteInEquipmentSystemsSectionAndDelay = async (
   delayTime && (await delay(delayTime));
 };
 
+///REQUESTBONO FUNCTIONS ///
+
+const tipoDeSegmento = (customer) => {
+  let segmentoI = "C022/22-SI";
+  let segmentoII = "C015/22-SI";
+  let segmentoIII = "C005/22-SI";
+  return customer.Num_trabajadores === "Menos de 3 trabajadores"
+    ? segmentoI
+    : customer.Num_trabajadores === "Entre 3 y 9 trabajadores"
+    ? segmentoII
+    : customer.Num_trabajadores === "Entre 10 y 49 trabajadores"
+    ? segmentoIII
+    : "";
+};
+
+// const codigoSegmentoToClick = async (customer, page, delay) => {
+//   if (customer.Num_trabajadores === "Menos de 3 trabajadores") {
+//     await page.getByRole("link", { name: "C022/22-SI" }).click();
+//     await delay(2000);
+//   } else if (customer.Num_trabajadores === "Entre 3 y 9 trabajadores") {
+//     await page.getByRole("link", { name: "C015/22-SI" }).click();
+//     await delay(2000);
+//   } else if (customer.Num_trabajadores === "Entre 10 y 49 trabajadores") {
+//     await page.getByRole("link", { name: "C005/22-SI" }).click();
+//     await delay(2000);
+//   }
+// };
+
+const codigoSegmentoToClick = async (page, segmento, delay) => {
+  await page.getByRole("link", { name: segmento }).click();
+  await delay(2000);
+};
+
 module.exports = {
   initContext,
   initContextWithAgentString,
@@ -548,4 +581,6 @@ module.exports = {
   clickSiguienteInDeviceSecuritySectionAndDelay,
   clickSiguienteInAccessManagementSectionAndDelay,
   clickSiguienteInEquipmentSystemsSectionAndDelay,
+  tipoDeSegmento,
+  codigoSegmentoToClick,
 };

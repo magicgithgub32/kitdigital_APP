@@ -31,7 +31,8 @@ const registerInAceleraPyme = async (customer) => {
 
     const definitiveTratamiento = await señorOSeñora(customer);
 
-    await clickAtLabel(page, definitiveTratamiento, 2000);
+    // await clickAtLabel(page, definitiveTratamiento, 2000); //de repente dejó de funcionar (cambio en la web?)
+    await selectGotByText(page, definitiveTratamiento);
 
     const capitalizedName = await capitalizeName(customer);
 
@@ -88,9 +89,10 @@ const registerInAceleraPyme = async (customer) => {
 
     await delay(2000);
 
-    customer.Num_trabajadores
-      ? await clickAtLabel(page, customer.Num_trabajadores, 2000)
-      : await clickAtLabel(page, "Menos de 3 trabajadores", 2000);
+    // customer.Num_trabajadores
+    //   ? await clickAtLabel(page, customer.Num_trabajadores, 2000)
+    //   : await clickAtLabel(page, "Menos de 3 trabajadores", 2000); //de repente dejó de funcionar (cambio en la web?)
+    await selectGotByText(page, customer.Num_trabajadores);
 
     await selectGotByText(page, "Consentimiento expreso");
 

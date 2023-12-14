@@ -5,6 +5,8 @@ const {
   selectGotByText,
   initContextWithDialogHandler,
   handleIframe,
+  codigoSegmentoToClick,
+  tipoDeSegmento,
 } = require("./robodec");
 
 const { exec } = require("child_process");
@@ -30,9 +32,17 @@ const runAppleScript = () => {
 const requestBono_URL =
   "https://sede.red.gob.es/convocatorias-y-ayudas?field_fecha_fin_plazo_value=1";
 
-const requestBono = async (customer) => {
+const requestBono = async () => {
+  let customer = {
+    Num_trabajadores: "Menos de 3 trabajadores",
+  };
+
+  // try {
+  //   const { page, browser } = await initContextWithDialogHandler({
+  //     url: requestBono_URL,
+  //   });
   try {
-    const { page, browser } = await initContextWithDialogHandler({
+    const { page, browser } = await initContext({
       url: requestBono_URL,
     });
 
@@ -80,24 +90,28 @@ const requestBono = async (customer) => {
 
     // if (customer.Autónomo === "Sí") {
 
-    await page.getByRole("link", { name: "C022/22-SI" }).click();
-    await delay(2000);
+    // await page.getByRole("link", { name: "C022/22-SI" }).click();
+    // await delay(2000);
+
+    const segmento = await tipoDeSegmento(customer);
+
+    await codigoSegmentoToClick(page, segmento, delay);
 
     await page.getByRole("link", { name: "Acceder al trámite" }).click();
     await delay(2000);
-
-    // page.on("dialog", async (dialog) => {
-    //   dialog.accept();
-    // });
 
     await page
       .getByRole("group", { name: "Acceso mediante certificado digital." })
       .getByRole("button")
       .click();
 
+    page.on("dialog", async (dialog) => {
+      console.log("dialog", dialog.message());
+      await dialog.accept();
+    });
+
     // await runAppleScript();
 
-    //ESTAR AUTENTICADOS PREVIAMENTE CON CERTIFICADO DIGITAL DE JORGE FERRANDO o HACE FALTA AUTENTICARSE AQUÍ?
     await delay(25000);
 
     const frame = await handleIframe(page, ".iframeTasks");
@@ -160,6 +174,6 @@ const requestBono = async (customer) => {
   }
 };
 
-// requestBono();
+requestBono();
 
-module.exports = requestBono;
+// module.exports = requestBono;

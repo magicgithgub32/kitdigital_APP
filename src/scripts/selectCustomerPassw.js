@@ -4,6 +4,7 @@ const {
   closeContext,
   delay,
   createEmailFromCustomerNIF,
+  selectGotByText,
 } = require("./robodec");
 require("dotenv").config();
 
@@ -51,9 +52,9 @@ const processLink = async (page, link, customer) => {
     .getByRole("textbox", { name: "Confirmar contraseña" })
     .fill(`c0N7rA${customer.NIF_NIE}##<@>?!`);
 
-  await page.getByLabel(`Guarda y accede como ${email}`).click();
+  // await page.getByLabel(`Guarda y accede como ${email}`).click(); //De repente dejó de ir (Cambio en la web?)
+  await selectGotByText(page, `Guarda y accede como ${email}`);
 
-  //?PROBANDO ESTO:
   return { success: true, message: "Account activation link processed" };
 };
 
