@@ -5,6 +5,8 @@ const {
   selectGotByText,
   initContextWithDialogHandler,
   handleIframe,
+  tipoDeSegmento,
+  codigoSegmentoToClick,
 } = require("./robodec");
 
 const { exec } = require("child_process");
@@ -30,7 +32,11 @@ const runAppleScript = () => {
 const requestBono_URL =
   "https://sede.red.gob.es/convocatorias-y-ayudas?field_fecha_fin_plazo_value=1";
 
-const requestBono = async (customer) => {
+const requestBono = async () => {
+  let customer = {
+    Num_trabajadores: "Menos de 3 trabajadores",
+  };
+
   /*try {
     const { page, browser } = await initContextWithDialogHandler({
       url: requestBono_URL,
@@ -84,26 +90,26 @@ const requestBono = async (customer) => {
     //   "https://sede.red.gob.es/convocatorias-y-ayudas?field_fecha_fin_plazo_value=1"
     // );
 
-    // if (customer.Autónomo === "Sí") {
+    
+    let segmento = tipoDeSegmento(customer)
 
-    await page.getByRole("link", { name: "C022/22-SI" }).click();
-    await delay(2000);
+    await codigoSegmentoToClick(page, segmento, delay)
 
     await page.getByRole("link", { name: "Acceder al trámite" }).click();
     await delay(2000);
 
-    // page.on("dialog", async (dialog) => {
-    //   dialog.accept();
-    // });
-
     await page
-      .getByRole("group", { name: "Acceso mediante certificado digital." })
+      .getByRole("group", { name: "Acceso mediante certificado" })
       .getByRole("button")
       .click();
 
-    // await runAppleScript();
+      page.on("dialog", async (dialog) => {
+        console.log(dialog.message())
+        await dialog.accept()
+      })
 
-    //ESTAR AUTENTICADOS PREVIAMENTE CON CERTIFICADO DIGITAL DE JORGE FERRANDO o HACE FALTA AUTENTICARSE AQUÍ?
+      //await page.goto('https://sedepkd.red.gob.es/oficina/wizard/wizard.do');
+
     await delay(25000);
 
     const frame = await handleIframe(page, ".iframeTasks");
