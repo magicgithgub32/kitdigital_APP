@@ -7,6 +7,10 @@ const {
   handleIframe,
   tipoDeSegmento,
   codigoSegmentoToClick,
+  tipoDeSolicitante,
+  tipoDeSolicitanteToSelect,
+  getCustomerProvinciaForRequestBono,
+  tieneEmpresasFunction,
 } = require("./robodec");
 
 const { exec } = require("child_process");
@@ -74,12 +78,10 @@ const requestBono = async () => {
     await delay(2000);
 
     const basePath = path.join(
-      "/Users",
-      "Ruben",
-      "Desktop",
-      "DECLARANDO 2",
-      "RPA",
-      "kitdigital",
+      //CHECK PATH
+      "/OneDrive",
+      "Escritorio",
+      "kitdigital_APP",
       "Autoriza_Representante_Voluntario"
     );
 
