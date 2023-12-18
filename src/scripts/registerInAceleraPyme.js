@@ -13,7 +13,6 @@ const {
   selectSoyAutonomo,
   capitalizeName,
   señorOSeñora,
-  cleanTlf,
   fillUpTo9DigitsTlf,
 } = require("./robodec");
 
@@ -106,7 +105,7 @@ const registerInAceleraPyme = async (customer) => {
 
     return {
       success: true,
-      message: "First step of Registration successful",
+      message: "Registration successful",
       phoneInfo: wasShorter
         ? "Original phone number was shorter than 9 digits"
         : "Phone number was complete",

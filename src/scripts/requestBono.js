@@ -37,10 +37,6 @@ const requestBono = async () => {
     Num_trabajadores: "Menos de 3 trabajadores",
   };
 
-  // try {
-  //   const { page, browser } = await initContextWithDialogHandler({
-  //     url: requestBono_URL,
-  //   });
   try {
     const { page, browser } = await initContext({
       url: requestBono_URL,
@@ -88,11 +84,6 @@ const requestBono = async () => {
     //   "https://sede.red.gob.es/convocatorias-y-ayudas?field_fecha_fin_plazo_value=1"
     // );
 
-    // if (customer.Autónomo === "Sí") {
-
-    // await page.getByRole("link", { name: "C022/22-SI" }).click();
-    // await delay(2000);
-
     const segmento = tipoDeSegmento(customer);
 
     await codigoSegmentoToClick(page, segmento, delay);
@@ -111,8 +102,6 @@ const requestBono = async () => {
     });
 
     // await runAppleScript();
-
-    await delay(25000);
 
     const frame = await handleIframe(page, ".iframeTasks");
 
@@ -174,6 +163,6 @@ const requestBono = async () => {
   }
 };
 
-requestBono();
+// requestBono();
 
 // module.exports = requestBono;
