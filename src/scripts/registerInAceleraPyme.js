@@ -13,6 +13,7 @@ const {
   selectSoyAutonomo,
   capitalizeName,
   señorOSeñora,
+  cleanTlf,
   fillUpTo9DigitsTlf,
 } = require("./robodec");
 

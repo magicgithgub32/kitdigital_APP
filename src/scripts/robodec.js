@@ -60,7 +60,7 @@ const closeContextWhenAgentStringUsed = async (context, browser) => {
 };
 
 const handleIframe = async (page, select) => {
-  await page.waitForLoadState();
+  await page.waitForSelector(select);
   const frameHandle = await page.$(select);
   const frame = await frameHandle.contentFrame();
   return frame;
@@ -515,6 +515,25 @@ const codigoSegmentoToClick = async (page, segmento, delay) => {
   await delay(2000);
 };
 
+const tipoDeSolicitante = (customer) => {
+  let autonomo = "autoempleo";
+  let empresa = "empresa";
+  return customer.Num_trabajadores === "Menos de 3 trabajadores"
+    ? autonomo
+    : empresa;
+};
+
+const tipoDeSolicitanteToSelect = async (frame, locator, solicitante) => {
+  await frame.selectOption(locator, solicitante);
+  await delay(2000);
+};
+
+const getCustomerProvinciaForRequestBono = async (customer) => {
+  const localidadResult = await getCustomerLocalidad(customer);
+  const provinciaInUpperCase = localidadResult.provincia.toUpperCase();
+  return provinciaInUpperCase;
+};
+
 module.exports = {
   initContext,
   initContextWithAgentString,
@@ -570,4 +589,7 @@ module.exports = {
   clickSiguienteInEquipmentSystemsSectionAndDelay,
   tipoDeSegmento,
   codigoSegmentoToClick,
+  tipoDeSolicitante,
+  tipoDeSolicitanteToSelect,
+  getCustomerProvinciaForRequestBono,
 };
