@@ -509,6 +509,29 @@ const codigoSegmentoToClick = async (page, segmento, delay) => {
   await delay(2000)
 };
 
+const tipoDeSolicitante = (customer) => {
+  let autonomo = "autoempleo";
+  let empresa = "empresa";
+  return customer.Num_trabajadores === "Menos de 3 trabajadores" ? autonomo : empresa;
+};
+
+const tipoDeSolicitanteToSelect = async (frame, locator, solicitante) => {
+  await frame.selectOption(locator, solicitante);
+  await delay(2000);
+}
+
+const getCustomerProvinciaForRequestBono = async(customer) => {
+  const localidadResult = await getCustomerLocalidad(customer);
+  const provinciaInUpperCase = localidadResult.provincia.toUpperCase();
+  return provinciaInUpperCase;
+}
+
+const tieneEmpresasFunction = async (customer) => {
+  let siTiene = "#formRenderer:soli_empresas_vinculadas:0";
+  let noTiene = "#formRenderer:soli_empresas_vinculadas:1";
+  return customer.Num_trabajadores === "Menos de 3 trabajadores" ? noTiene : siTiene;
+};
+
 module.exports = {
   initContext,
   initContextWithAgentString,
@@ -563,5 +586,9 @@ module.exports = {
   clickSiguienteInAccessManagementSectionAndDelay,
   clickSiguienteInEquipmentSystemsSectionAndDelay,
   tipoDeSegmento,
-  codigoSegmentoToClick
+  codigoSegmentoToClick,
+  tipoDeSolicitante,
+  tipoDeSolicitanteToSelect,
+  getCustomerProvinciaForRequestBono,
+  tieneEmpresasFunction
 };

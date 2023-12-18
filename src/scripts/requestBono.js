@@ -15,81 +15,24 @@ const request = require("request");
 const { chromium } = require("playwright");
 const path = require("path");
 
-const runAppleScript = () => {
-  return new Promise((resolve, reject) => {
-    exec("osascript ./handleDialog.scpt", (error, stdout, stderr) => {
-      if (error) {
-        reject(error);
-      } else if (stderr) {
-        reject(new Error(stderr));
-      } else {
-        resolve(stdout);
-      }
-    });
-  });
-};
 
 const requestBono_URL =
   "https://sede.red.gob.es/convocatorias-y-ayudas?field_fecha_fin_plazo_value=1";
 
 const requestBono = async () => {
   let customer = {
+    Nombre: "Amparo Ruiz",
+    Tlf: 666666666,
+    Email: "amparor@gmail.es",
     Num_trabajadores: "Menos de 3 trabajadores",
+    NIF_NIE: "20473233X",
+    Localidad: "Azaila//Teruel//Aragón",
   };
-
-  /*try {
-    const { page, browser } = await initContextWithDialogHandler({
-      url: requestBono_URL,
-    });
-    */
 
     try {
       const { page, browser } = await initContext({
         url: requestBono_URL,
       });
-
-    // const browser = await chromium.launch({ headless: false });
-    // const context = await browser.newContext();
-
-    // context.route("**/*", (route, req) => {
-    //   const options = {
-    //     uri: req.url(),
-    //     method: req.method(),
-    //     headers: req.headers(),
-    //     body: req.postDataBuffer(),
-    //     timeout: 10000,
-    //     followRedirect: false,
-    //     agentOptions: {
-    //       pfx: fs.readFileSync("./certs/user_cert.p12"),
-    //     },
-    //   };
-
-    //   let firstTry = true;
-    //   const handler = function handler(err, resp, data) {
-    //     if (err) {
-    //       if (firstTry) {
-    //         firstTry = false;
-    //         return request(options, handler);
-    //       }
-    //       console.error(`Unable to call ${options.uri}`, err.code, err);
-    //       return route.abort();
-    //     } else {
-    //       return route.fulfill({
-    //         status: resp.statusCode,
-    //         headers: resp.headers,
-    //         body: data,
-    //       });
-    //     }
-    //   };
-
-    //   request(options, handler);
-    // });
-
-    // const page = await context.newPage();
-    // await page.goto(
-    //   "https://sede.red.gob.es/convocatorias-y-ayudas?field_fecha_fin_plazo_value=1"
-    // );
-
     
     let segmento = tipoDeSegmento(customer)
 
@@ -114,11 +57,9 @@ const requestBono = async () => {
 
     const frame = await handleIframe(page, ".iframeTasks");
 
-    await frame.selectOption(
-      '[id="formRenderer:soli_empresa_autoempleo"]',
-      "autoempleo"
-    );
-    await delay(2000);
+    const solicitante = tipoDeSolicitante(customer)
+
+    await tipoDeSolicitanteToSelect(frame,'[id="formRenderer:soli_empresa_autoempleo"]',solicitante);
 
     await frame.selectOption(
       '[id="formRenderer:representante_tipo"]',
@@ -133,7 +74,7 @@ const requestBono = async () => {
     await delay(2000);
 
     const basePath = path.join(
-      "Users",
+      "/Users",
       "Ruben",
       "Desktop",
       "DECLARANDO 2",
@@ -159,11 +100,36 @@ const requestBono = async () => {
       filePath
     );
 
-    await selectGotByText(frame, "Siguiente");
+    await frame.getByLabel("Persona de contacto de la Persona física (autónomo", customer.Nombre);
+    await delay(2000);
 
-    // }
+    await frame.getByLabel("Teléfono móvil de la Persona física (autónomo", customer.Tlf);
+    await delay(2000);
 
-    await closeContext(browser);
+    await frame.getByLabel("Email contacto de la Persona física (autónomo", customer.Email);
+    await delay(2000);
+
+    const provincia = await getCustomerProvinciaForRequestBono(customer);
+
+    await frame.getByLabel("Provincia de su domicilio fiscal", {exact: true}).selectOption(provincia);
+    await delay(2000);
+
+    const tieneEmpresas = tieneEmpresasFunction(customer);
+    await frame.getByLabel(tieneEmpresas, {exact: true});
+    await delay(2000);
+
+    await frame.getByLabel("Persona de contacto", "Jorge Ferrando");
+    await delay(2000);
+
+    await frame.getByLabel("Teléfono móvil", 615830090);
+    await delay(2000);
+
+    await frame.getByLabel("Email contacto", "kitdigital.kd@gmail.com");
+    await delay(2000);
+
+    await frame.getByRole("link", {name: "Siguiente"}).click();
+
+    //await closeContext(browser);
 
     return { success: true, message: "Bono requested succesfully", customer };
   } catch (error) {
@@ -174,6 +140,6 @@ const requestBono = async () => {
 
 requestBono();
 
-/*
-module.exports = requestBono
-*/
+
+//module.exports = requestBono
+

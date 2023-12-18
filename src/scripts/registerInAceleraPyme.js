@@ -30,7 +30,6 @@ const registerInAceleraPyme = async (customer) => {
 
     const definitiveTratamiento = await señorOSeñora(customer);
 
-    //await clickAtLabel(page, definitiveTratamiento, 2000);
     await selectGotByText(page, definitiveTratamiento)
 
     const capitalizedName = await capitalizeName(customer);
@@ -105,7 +104,7 @@ const registerInAceleraPyme = async (customer) => {
 
     return {
       success: true,
-      message: "First step of Registration successful",
+      message: "Registration successful",
       phoneInfo: wasShorter
         ? "Original phone number was shorter than 9 digits"
         : "Phone number was complete",
