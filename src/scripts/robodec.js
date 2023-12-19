@@ -109,6 +109,11 @@ const fillByLabel = async (page, label, value, delayTime) => {
   delayTime && (await delay(delayTime));
 };
 
+const fillByLabelInFrame = async (frame, label, value, delayTime) => {
+  await frame.getByLabel(label, { exact: true }).fill(value);
+  delayTime && (await delay(delayTime));
+};
+
 const selectGotByText = async (page, select, options = {}) => {
   await page.getByText(select, options).click();
   await delay(2000);
@@ -116,6 +121,11 @@ const selectGotByText = async (page, select, options = {}) => {
 
 const selectGotByRole = async (page, role, nameSelected) => {
   await page.getByRole(role, { name: nameSelected }).click();
+  await delay(2000);
+};
+
+const selectGotByRoleInFrame = async (frame, role, nameSelected) => {
+  await frame.getByRole(role, { name: nameSelected }).click();
   await delay(2000);
 };
 
@@ -157,6 +167,11 @@ const selectMenuGotByLabelNotExact = async (page, label, select, delayTime) => {
   delayTime && delay(delayTime);
 };
 
+const selectMenuGotByLabelInFrame = async (frame, label, select, delayTime) => {
+  await frame.getByLabel(label, { exact: true }).selectOption(select);
+  delayTime && delay(delayTime);
+};
+
 const selectGotByLocator = async (
   page,
   locator,
@@ -173,6 +188,11 @@ const selectGotByLocator = async (
   await page.locator(locator).filter(filterOptions).click();
 
   delayTime && delay(delayTime);
+};
+
+const selectGotByOptionInFrame = async (frame, locator, option) => {
+  await frame.selectOption(locator, option);
+  await delay(2000);
 };
 
 const numRandomValue = (possibleValues) => {
@@ -534,6 +554,14 @@ const getCustomerProvinciaForRequestBono = async (customer) => {
   return provinciaInUpperCase;
 };
 
+const tieneEmpresasFunction = async (customer) => {
+  let siTiene = "Si";
+  let noTiene = "No";
+  return customer.Num_trabajadores === "Menos de 3 trabajadores"
+    ? noTiene
+    : siTiene;
+};
+
 module.exports = {
   initContext,
   initContextWithAgentString,
@@ -545,10 +573,12 @@ module.exports = {
   delay,
   fillByPlaceholder,
   fillByLabel,
+  fillByLabelInFrame,
   loginInAceleraPyme,
   selectTestToPassInAceleraPyme,
   selectGotByText,
   selectGotByRole,
+  selectGotByRoleInFrame,
   selectGotById,
   clickAtLabel,
   clickByPlaceholder,
@@ -556,7 +586,9 @@ module.exports = {
   getCustomerLocalidad,
   selectMenuGotByLabel,
   selectMenuGotByLabelNotExact,
+  selectMenuGotByLabelInFrame,
   selectGotByLocator,
+  selectGotByOptionInFrame,
   numRandomValue,
   clickSiguienteBySelector,
   selectCheckedByRadioAndSiguiente,
@@ -592,4 +624,5 @@ module.exports = {
   tipoDeSolicitante,
   tipoDeSolicitanteToSelect,
   getCustomerProvinciaForRequestBono,
+  tieneEmpresasFunction,
 };

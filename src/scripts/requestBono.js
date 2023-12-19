@@ -2,15 +2,18 @@ const {
   closeContext,
   initContext,
   delay,
-  selectGotByText,
-  initContextWithDialogHandler,
   handleIframe,
   codigoSegmentoToClick,
   tipoDeSegmento,
   tipoDeSolicitante,
   tipoDeSolicitanteToSelect,
-  getCustomerLocalidad,
   getCustomerProvinciaForRequestBono,
+  tieneEmpresasFunction,
+  selectGotByRole,
+  selectGotByOptionInFrame,
+  fillByLabelInFrame,
+  selectMenuGotByLabelInFrame,
+  selectGotByRoleInFrame,
 } = require("./robodec");
 
 const { exec } = require("child_process");
@@ -39,11 +42,11 @@ const requestBono_URL =
 const requestBono = async () => {
   let customer = {
     Nombre: "Amparo Ruiz",
-    Tlf: 666333777,
+    Tlf: "666333777",
     Email: "amparoruiz@gmail.com",
     Num_trabajadores: "Menos de 3 trabajadores",
     NIF_NIE: "20473233J",
-    Localidad: "Azaila//TERUEL//Aragón",
+    Localidad: "Azaila//Teruel//Aragón",
   };
 
   try {
@@ -97,8 +100,7 @@ const requestBono = async () => {
 
     await codigoSegmentoToClick(page, segmento, delay);
 
-    await page.getByRole("link", { name: "Acceder al trámite" }).click();
-    await delay(2000);
+    await selectGotByRole(page, "link", "Acceder al trámite");
 
     await page
       .getByRole("group", { name: "Acceso mediante certificado digital." })
@@ -122,17 +124,17 @@ const requestBono = async () => {
       solicitante
     );
 
-    await frame.selectOption(
+    await selectGotByOptionInFrame(
+      frame,
       '[id="formRenderer:representante_tipo"]',
       "Representante voluntario"
     );
-    await delay(2000);
 
-    await frame.selectOption(
+    await selectGotByOptionInFrame(
+      frame,
       '[id="formRenderer:representante_tipo_voluntario"]',
       "Persona Física"
     );
-    await delay(2000);
 
     const basePath = path.join(
       "/Users",
@@ -156,93 +158,57 @@ const requestBono = async () => {
       }
     });
 
+    await frame.waitForLoadState("load");
     await frame.setInputFiles(
       "#formRenderer\\:file_C02201_C022SO\\:file",
       filePath
     );
+    await delay(8000);
 
-    // await frame.waitForSelector("input#formRenderer:soli_persona_contacto");
-    // await frame.fill(
-    //   "input#formRenderer:soli_persona_contacto",
-    //   customer.Nombre
-    // );
-    await frame.getByLabel(
+    await fillByLabelInFrame(
+      frame,
       "Persona de contacto de la Persona física (autónomo)",
-      customer.Nombre
+      customer.Nombre,
+      2000
     );
-    await delay(2000);
 
-    // await frame.waitForSelector("input#formRenderer:soli_telefono_movil");
-    // await frame.fill("input#formRenderer:soli_telefono_movil", customer.Tlf);
-    await frame.getByLabel(
+    await fillByLabelInFrame(
+      frame,
       "Teléfono móvil de la Persona física (autónomo)",
-      customer.Tlf
+      customer.Tlf,
+      2000
     );
-    await delay(2000);
 
-    // await frame.waitForSelector("input#formRenderer:soli_email");
-    // await frame.fill("input#formRenderer:soli_email", customer.Email);
-    await frame.getByLabel(
+    await fillByLabelInFrame(
+      frame,
       "Email contacto de la Persona física (autónomo)",
-      customer.Email
+      customer.Email,
+      2000
     );
-    await delay(2000);
-
-    // const { provincia } = await getCustomerLocalidad(customer);
-    // await frame.waitForSelector("input#formRenderer:soli_provincia");
-    // await frame.selectOption(provincia);
 
     const provincia = await getCustomerProvinciaForRequestBono(customer);
+    await selectMenuGotByLabelInFrame(
+      frame,
+      "Provincia de su domicilio fiscal",
+      provincia,
+      2000
+    );
 
-    await frame
-      .getByLabel("Provincia de su domicilio fiscal", { exact: true })
-      .selectOption(provincia);
+    const tieneEmpresas = await tieneEmpresasFunction(customer);
+    await frame.getByLabel(tieneEmpresas, { exact: true }).click();
     await delay(2000);
 
-    const tieneEmpresasFunction = async (customer) => {
-      let siTiene = "#formRenderer:soli_empresas_vinculadas:0";
-      let noTiene = "formRenderer:soli_empresas_vinculadas:1";
-      return customer.Num_trabajadores === "Menos de 3 trabajadores"
-        ? noTiene
-        : siTiene;
-    };
+    await fillByLabelInFrame(frame, "Persona de contacto", "Jorge Ferrando");
 
-    const tieneEmpresas = tieneEmpresasFunction(customer);
-    // await frame.getByText(tieneEmpresas);
-    await frame.getByLabel(tieneEmpresas, { exact: true });
-    await delay(2000);
+    await fillByLabelInFrame(frame, "Teléfono móvil", "615830090");
 
-    // await frame.waitforSelector(
-    //   "input#formRenderer:entidad_autorizada_persona_contacto"
-    // );
-    // await frame.fill(
-    //   "input#formRenderer:entidad_autorizada_persona_contacto",
-    //   "Jorge Ferrando"
-    // );
-    await frame.getByLabel("Persona de contacto", "Jorge Ferrando");
-    await delay(2000);
+    await fillByLabelInFrame(
+      frame,
+      "Email contacto",
+      "kitdigital.kd@gmail.com"
+    );
 
-    // await frame.waitforSelector(
-    //   "input#formRenderer:entidad_autorizada_telefono_movil"
-    // );
-    await frame.getByLabel("Teléfono móvil", 615830090);
-    await delay(2000);
-
-    // await frame.fill(
-    //   "input#formRenderer:entidad_autorizada_telefono_movil",
-    //   666666666
-    // );
-    // await delay(2000);
-
-    // await frame.waitforSelector("input#formRenderer:entidad_autorizada_email");
-    // await frame.fill(
-    //   "input#formRenderer:entidad_autorizada_email",
-    //   "kitdigital.kd@gmail.com"
-    // );
-    await frame.getByLabel("Email contacto", "kitdigital.kd@gmail.com");
-    await delay(2000);
-
-    await frame.getByRole("link", { name: "Siguiente" }).click();
+    await selectGotByRoleInFrame(frame, "link", "Siguiente");
 
     // await closeContext(browser);
 
@@ -253,6 +219,6 @@ const requestBono = async () => {
   }
 };
 
-requestBono();
+// requestBono();
 
 // module.exports = requestBono;
