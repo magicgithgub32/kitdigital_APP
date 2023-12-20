@@ -60,7 +60,7 @@ const closeContextWhenAgentStringUsed = async (context, browser) => {
 };
 
 const handleIframe = async (page, select) => {
-  await page.waitForLoadState();
+  await page.waitForSelector(select);
   const frameHandle = await page.$(select);
   const frame = await frameHandle.contentFrame();
   return frame;
