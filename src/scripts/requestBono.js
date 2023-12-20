@@ -42,7 +42,7 @@ const requestBono = async () => {
     
     let segmento = tipoDeSegmento(customer)
 
-    await codigoSegmentoToClick(page, segmento)
+    await codigoSegmentoToClick(page, segmento, delay)
 
     await page.getByRole("link", { name: "Acceder al trámite" }).click();
     await delay(2000);
