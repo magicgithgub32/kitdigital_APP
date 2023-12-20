@@ -2,8 +2,6 @@ const {
   closeContext,
   initContext,
   delay,
-  selectGotByText,
-  initContextWithDialogHandler,
   handleIframe,
   tipoDeSegmento,
   codigoSegmentoToClick,
@@ -11,6 +9,10 @@ const {
   tipoDeSolicitanteToSelect,
   getCustomerProvinciaForRequestBono,
   tieneEmpresasFunction,
+  selectGotByOptionInFrame,
+  fillByLabelInFrame,
+  selectMenuGotByLabelInFrame,
+  selectGotByRoleInFrame,
 } = require("./robodec");
 
 const { exec } = require("child_process");
@@ -26,7 +28,7 @@ const requestBono_URL =
 const requestBono = async () => {
   let customer = {
     Nombre: "Amparo Ruiz",
-    Tlf: 666666666,
+    Tlf: "666666666",
     Email: "amparor@gmail.es",
     Num_trabajadores: "Menos de 3 trabajadores",
     NIF_NIE: "20473233X",
@@ -40,7 +42,7 @@ const requestBono = async () => {
     
     let segmento = tipoDeSegmento(customer)
 
-    await codigoSegmentoToClick(page, segmento, delay)
+    await codigoSegmentoToClick(page, segmento)
 
     await page.getByRole("link", { name: "Acceder al trámite" }).click();
     await delay(2000);
@@ -55,9 +57,7 @@ const requestBono = async () => {
         await dialog.accept()
       })
 
-      //await page.goto('https://sedepkd.red.gob.es/oficina/wizard/wizard.do');
-
-    await delay(25000);
+//    await delay(25000);
 
     const frame = await handleIframe(page, ".iframeTasks");
 
@@ -65,17 +65,10 @@ const requestBono = async () => {
 
     await tipoDeSolicitanteToSelect(frame,'[id="formRenderer:soli_empresa_autoempleo"]',solicitante);
 
-    await frame.selectOption(
-      '[id="formRenderer:representante_tipo"]',
-      "Representante voluntario"
-    );
-    await delay(2000);
+    await selectGotByOptionInFrame(frame,'[id="formRenderer:representante_tipo"]', solicitante )
 
-    await frame.selectOption(
-      '[id="formRenderer:representante_tipo_voluntario"]',
-      "Persona Física"
-    );
-    await delay(2000);
+    await selectGotByOptionInFrame(frame,'[id="formRenderer:representante_tipo_voluntario"]',
+    "Persona Física" )
 
     const basePath = path.join(
       //CHECK PATH
@@ -101,35 +94,28 @@ const requestBono = async () => {
       "#formRenderer\\:file_C02201_C022SO\\:file",
       filePath
     );
+    await delay(20000)
 
-    await frame.getByLabel("Persona de contacto de la Persona física (autónomo", customer.Nombre);
-    await delay(2000);
+    await fillByLabelInFrame(frame,"Persona de contacto de la Persona física (autónomo)", customer.Nombre )
 
-    await frame.getByLabel("Teléfono móvil de la Persona física (autónomo", customer.Tlf);
-    await delay(2000);
+    await fillByLabelInFrame(frame,"Teléfono móvil de la Persona física (autónomo)", customer.Tlf)
 
-    await frame.getByLabel("Email contacto de la Persona física (autónomo", customer.Email);
-    await delay(2000);
+    await fillByLabelInFrame(frame,"Email contacto de la Persona física (autónomo)", customer.Email)
 
     const provincia = await getCustomerProvinciaForRequestBono(customer);
-
-    await frame.getByLabel("Provincia de su domicilio fiscal", {exact: true}).selectOption(provincia);
-    await delay(2000);
+    await selectMenuGotByLabelInFrame(frame, "Provincia de su domicilio fiscal", provincia, 2000)
 
     const tieneEmpresas = tieneEmpresasFunction(customer);
     await frame.getByLabel(tieneEmpresas, {exact: true});
     await delay(2000);
 
-    await frame.getByLabel("Persona de contacto", "Jorge Ferrando");
-    await delay(2000);
+    await fillByLabelInFrame(frame, "Persona de contacto", "Jorge Ferrando");
 
-    await frame.getByLabel("Teléfono móvil", 615830090);
-    await delay(2000);
+    await fillByLabelInFrame(frame, "Teléfono móvil","615830090");
 
-    await frame.getByLabel("Email contacto", "kitdigital.kd@gmail.com");
-    await delay(2000);
+    await fillByLabelInFrame(frame, "Email de contacto", "kitdigital.kd@gmail.com");
 
-    await frame.getByRole("link", {name: "Siguiente"}).click();
+    await selectGotByRoleInFrame(frame, "link","Siguiente");
 
     //await closeContext(browser);
 
