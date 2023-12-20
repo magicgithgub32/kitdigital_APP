@@ -65,10 +65,9 @@ const requestBono = async () => {
 
     await tipoDeSolicitanteToSelect(frame,'[id="formRenderer:soli_empresa_autoempleo"]',solicitante);
 
-    await selectGotByOptionInFrame(frame,'[id="formRenderer:representante_tipo"]', solicitante )
+    await selectGotByOptionInFrame(frame,'[id="formRenderer:representante_tipo"]', "Representante voluntario");
 
-    await selectGotByOptionInFrame(frame,'[id="formRenderer:representante_tipo_voluntario"]',
-    "Persona Física" )
+    await selectGotByOptionInFrame(frame,'[id="formRenderer:representante_tipo_voluntario"]', "Persona Física");
 
     const basePath = path.join(
       //CHECK PATH
