@@ -14,6 +14,9 @@ const {
   fillByLabelInFrame,
   selectMenuGotByLabelInFrame,
   selectGotByRoleInFrame,
+  getNumberOfPartners,
+  getColaboradoresDNI,
+  getColaboradoresInfo,
 } = require("./robodec");
 
 const { exec } = require("child_process");
@@ -21,6 +24,7 @@ const fs = require("fs");
 const request = require("request");
 const { chromium } = require("playwright");
 const path = require("path");
+const { log } = require("console");
 
 const runAppleScript = () => {
   return new Promise((resolve, reject) => {
@@ -41,12 +45,15 @@ const requestBono_URL =
 
 const requestBono = async () => {
   let customer = {
-    Nombre: "Amparo Ruiz",
-    Tlf: "666333777",
-    Email: "amparoruiz@gmail.com",
+    Nombre: "Ana Maria Pulido de los Reyes",
+    Tlf: "627032097",
+    Email: "ana@sankaraeventos.com",
     Num_trabajadores: "Menos de 3 trabajadores",
-    NIF_NIE: "20473233J",
-    Localidad: "Azaila//Teruel//Aragón",
+    NIF_NIE: "52100572Y",
+    Localidad: "Torrejón de Velasco//Madrid//Madrid, Comunidad de",
+    Autónomos_Colaboradores:
+      "Ana Maria Pulido de los Reyes/SARA LOPEZ BARANDA/Ángel López",
+    NIF_Colaboradores: "70055537K/53657594C",
   };
 
   try {
@@ -107,14 +114,16 @@ const requestBono = async () => {
       .getByRole("button")
       .click();
 
-    page.on("dialog", async (dialog) => {
-      console.log("dialog", dialog.message());
-      await dialog.accept();
-    });
+    await delay(5000);
+
+    // page.on("dialog", async (dialog) => {
+    //   console.log("dialog", dialog.message());
+    //   await dialog.accept();
+    // });
 
     // await runAppleScript();
 
-    const frame = await handleIframe(page, ".iframeTasks");
+    let frame = await handleIframe(page, ".iframeTasks");
 
     const solicitante = tipoDeSolicitante(customer);
 
@@ -147,6 +156,7 @@ const requestBono = async () => {
     );
 
     const customerFileName = `REPVOL${customer.NIF_NIE}.pdf`;
+    console.log("customerFileName", customerFileName);
 
     const filePath = path.join(basePath, customerFileName);
 
@@ -163,7 +173,7 @@ const requestBono = async () => {
       "#formRenderer\\:file_C02201_C022SO\\:file",
       filePath
     );
-    await delay(8000);
+    await delay(15000);
 
     await fillByLabelInFrame(
       frame,
@@ -194,7 +204,7 @@ const requestBono = async () => {
       2000
     );
 
-    const tieneEmpresas = await tieneEmpresasFunction(customer);
+    const tieneEmpresas = tieneEmpresasFunction(customer);
     await frame.getByLabel(tieneEmpresas, { exact: true }).click();
     await delay(2000);
 
@@ -209,6 +219,63 @@ const requestBono = async () => {
     );
 
     await selectGotByRoleInFrame(frame, "link", "Siguiente");
+
+    frame = await handleIframe(page, ".iframeTasks");
+
+    let partnerData = getNumberOfPartners(customer);
+    let numberOfPartners = partnerData.numeroDeSocios;
+    console.log("numero de socios", numberOfPartners);
+
+    if (numberOfPartners === "0") {
+      await selectGotByRoleInFrame(frame, "link", "Siguiente");
+    } else {
+      await selectGotByOptionInFrame(
+        frame,
+        '[id="formRenderer:autonomos_colaboradores_numero"]',
+        numberOfPartners
+      );
+
+      await frame
+        .getByLabel(
+          "Declaro responsablemente que los autónomos colaboradores declarados en el presente formulario han ejercido su actividad en exclusiva para la persona física (autónomo) solicitante durante el periodo de referencia considerado para el cálculo de la plantilla media de trabajadores. Este periodo se indica en las bases de la convocatoria.",
+          { exact: true }
+        )
+        .click();
+      await delay(2000);
+
+      let colaboradoresInfo = getColaboradoresInfo(customer);
+
+      for (let colaboradorInfo of colaboradoresInfo) {
+        console.log(
+          "DNI:",
+          colaboradorInfo.dni,
+          "Name:",
+          colaboradorInfo.name,
+          "Surname:",
+          colaboradorInfo.surname
+        );
+
+        await frame
+          .locator('[id="formRenderer:AC_1_autonomo_nif"]')
+          .fill(colaboradorInfo.dni.toString());
+
+        //? HACER IGUAL LOS DE ABAJO QUE ÉSTE DE ARRIBA
+
+        await fillByLabelInFrame(
+          frame,
+          "NOMBRE",
+          colaboradorInfo.name.toString()
+        );
+
+        await fillByLabelInFrame(
+          frame,
+          "APELLIDOS",
+          colaboradorInfo.surname.toString()
+        );
+      }
+    }
+
+    // await selectGotByRoleInFrame(frame, "link", "Siguiente");
 
     // await closeContext(browser);
 

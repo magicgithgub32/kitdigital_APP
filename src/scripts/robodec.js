@@ -530,7 +530,7 @@ const tipoDeSegmento = (customer) => {
     : "";
 };
 
-const codigoSegmentoToClick = async (page, segmento, delay) => {
+const codigoSegmentoToClick = async (page, segmento) => {
   await page.getByRole("link", { name: segmento }).click();
   await delay(2000);
 };
@@ -554,12 +554,98 @@ const getCustomerProvinciaForRequestBono = async (customer) => {
   return provinciaInUpperCase;
 };
 
-const tieneEmpresasFunction = async (customer) => {
+const tieneEmpresasFunction = (customer) => {
   let siTiene = "Si";
   let noTiene = "No";
   return customer.Num_trabajadores === "Menos de 3 trabajadores"
     ? noTiene
     : siTiene;
+};
+
+const getNumberOfPartners = (customer) => {
+  let numeroDeSocios = "0";
+
+  let autonomosColaboradoresDef = [];
+
+  if (customer.Autónomos_Colaboradores.length > 0) {
+    let autonomosColaboradoresArr = customer.Autónomos_Colaboradores.split("/");
+    for (let i = 0; i < autonomosColaboradoresArr.length; i++) {
+      if (
+        autonomosColaboradoresArr[i].toLowerCase() !==
+        customer.Nombre.toLowerCase()
+      ) {
+        autonomosColaboradoresDef.push(autonomosColaboradoresArr[i]);
+      }
+    }
+    numeroDeSocios = autonomosColaboradoresDef.length.toString();
+  }
+  console.log(
+    "numeroDeSocios:",
+    numeroDeSocios,
+    "autonomosColaboradoresDef:",
+    autonomosColaboradoresDef
+  );
+
+  return { numeroDeSocios, autonomosColaboradoresDef };
+};
+
+const getColaboradoresDNI = (customer) => {
+  let colaboradoresDNIArr = customer.NIF_Colaboradores.split(" ");
+  console.log("Colaboradores DNI Array:", colaboradoresDNIArr);
+
+  if (colaboradoresDNIArr.includes(customer.NIF_NIE)) {
+    let customerDNIIndex = colaboradoresDNIArr.indexOf(customer.NIF_NIE);
+    colaboradoresDNIArr.splice(customerDNIIndex, 1);
+
+    console.log("Colaboradores DNI Array:", colaboradoresDNIArr);
+  }
+  return colaboradoresDNIArr;
+};
+
+const getColaboradoresInfo = (customer) => {
+  const { autonomosColaboradoresDef } = getNumberOfPartners(customer);
+  const colaboradoresDNIArr = getColaboradoresDNI(customer);
+
+  let colaboradoresInfo = [];
+
+  console.log("Colaboradores DNI Array inside function:", colaboradoresDNIArr);
+
+  for (let i = 0; i < autonomosColaboradoresDef.length; i++) {
+    let nameComponents = autonomosColaboradoresDef[i].split(" ");
+    let colaboradorInfo;
+
+    console.log("Processing:", nameComponents, "DNI Index:", i);
+
+    if (colaboradoresDNIArr[i] === undefined) {
+      console.error("DNI undefined for index", i);
+      continue; // Skip this iteration as DNI is undefined
+    }
+
+    console.log("Before accessing DNI:", colaboradoresDNIArr[i]);
+
+    if (nameComponents.length > 3) {
+      let names = nameComponents.slice(0, 2).join(" ");
+      let surnames = nameComponents.slice(2).join(" ");
+      colaboradorInfo = {
+        name: names,
+        surname: surnames,
+        dni: colaboradoresDNIArr[i],
+      };
+    } else {
+      let name = nameComponents.slice(0, 1).join(" ");
+      let surname = nameComponents.slice(1).join(" ");
+      colaboradorInfo = {
+        name: name,
+        surname: surname,
+        dni: colaboradoresDNIArr[i],
+      };
+    }
+    console.log("After accessing DNI:", colaboradorInfo);
+    colaboradoresInfo.push(colaboradorInfo);
+  }
+
+  console.log("Colaboradores Info Array:", colaboradoresInfo);
+  return colaboradoresInfo;
 };
 
 module.exports = {
@@ -625,4 +711,7 @@ module.exports = {
   tipoDeSolicitanteToSelect,
   getCustomerProvinciaForRequestBono,
   tieneEmpresasFunction,
+  getNumberOfPartners,
+  getColaboradoresDNI,
+  getColaboradoresInfo,
 };
