@@ -13,6 +13,8 @@ const {
   fillByLabelInFrame,
   selectMenuGotByLabelInFrame,
   selectGotByRoleInFrame,
+  getNumberOfPartners,
+  getColaboradoresInfo,
 } = require("./robodec");
 
 const { exec } = require("child_process");
@@ -59,7 +61,7 @@ const requestBono = async () => {
 
 //    await delay(25000);
 
-    const frame = await handleIframe(page, ".iframeTasks");
+    let frame = await handleIframe(page, ".iframeTasks");
 
     const solicitante = tipoDeSolicitante(customer)
 
@@ -115,6 +117,29 @@ const requestBono = async () => {
     await fillByLabelInFrame(frame, "Email de contacto", "kitdigital.kd@gmail.com");
 
     await selectGotByRoleInFrame(frame, "link","Siguiente");
+
+    frame = await handleIframe(page, ".iframeTasks");
+
+    let partnerData = getNumberOfPartners(customer);
+    let numberOfPartners = partnerData.numeroDeSocios;
+    console.log("Num. de socios", numberOfPartners);
+
+    if(numberOfPartners === "0") {
+      await selectGotByRoleInFrame(frame, "link", "Siguiente");
+    } else {
+      await selectGotByOptionInFrame(frame, '[id=formRenderer:autonomos_colaboradores_numero]',numberOfPartners);
+
+      await frame.getByLabel("Declaro responsablemente que los autónomos colaboradores declarados en el presente formulario han ejercido su actividad en exclusiva", {exact: true}).click();
+      await delay(2000);
+
+      let colaboradoresInfo = getColaboradoresInfo(customer);
+
+      for(let colaboradorInfo of colaboradoresInfo) {
+        await frame.locator('[id="formRenderer:AC_1_autonomos_nif]').fill(colaboradorInfo.dni.toString());
+
+        
+      }
+    }
 
     //await closeContext(browser);
 

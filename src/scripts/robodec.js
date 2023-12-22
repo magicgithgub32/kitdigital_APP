@@ -552,6 +552,71 @@ const tieneEmpresasFunction = async (customer) => {
   return customer.Num_trabajadores === "Menos de 3 trabajadores" ? noTiene : siTiene;
 };
 
+const getNumberOfPartners = (customer) => {
+  let numeroDeSocios = "0";
+
+  let autonomosColaboradoresDef = [];
+
+  if(customer.Autonomos_Colaboradores.length > 0) {
+    let autonomosColaboradoresArr = customer.Autonomos_Colaboradores.split("/");
+    for (let i = 0; i < autonomosColaboradoresArr.length; i++) {
+      if (autonomosColaboradoresArr[i].toLowerCase() != customer.Nombre.toLowerCase()) {
+        autonomosColaboradoresDef.push(autonomosColaboradoresArr[i]);
+      }
+    }
+    numeroDeSocios = autonomosColaboradoresDef.length.toString()
+  }
+  return {numeroDeSocios, autonomosColaboradoresDef};
+}
+
+const getColaboradoresDNI = (customer) => {
+  let colaboradoresDNIArr = customer.NIF_Colaboradores.split(" ")
+
+  if(colaboradoresDNIArr.includes(customer.NIF_NIE)) {
+    let customerDNIIndex = colaboradoresDNIArr.indexOf(customer.NIF_NIE);
+    colaboradoresDNIArr.splice(customerDNIIndex,1);
+  }
+  return colaboradoresDNIArr;
+}
+
+const getColaboradoresInfo = (customer) => {
+  const {autonomosColaboradoresDef} = getNumberOfPartners(customer);
+  const colaboradoresDNIArr = getColaboradoresDNI(customer);
+
+  let colaboradoresInfo = [];
+
+  for (let i = 0; i< autonomosColaboradoresDef.length; i++) {
+    let nameComponents = autonomosColaboradoresDef[i].split(" ");
+    let colaboradorInfo;
+
+    if(colaboradoresDNIArr[i] === undefined) {
+      console.error("DNI undefined for index", i);
+      continue;
+    }
+
+    if(nameComponents.length > 3) {
+      let names = nameComponents.slice(0,2).join(" ");
+      let surnames = nameComponents.slice(2).join(" ");
+      colaboradorInfo = {
+        name: names,
+        surname: surnames,
+        dni: colaboradoresDNIArr[i],
+      }
+    } else {
+      let names = nameComponents.slice(0,1).join(" ");
+      let surnames = nameComponents.slice(1).join(" ");
+      colaboradorInfo = {
+        name: names,
+        surname: surnames,
+        dni: colaboradoresDNIArr[i],
+      }
+    }
+    colaboradoresInfo.push(colaboradorInfo);
+  }
+  console.log("Colaboradores Info Array:", colaboradoresInfo);
+  return colaboradoresInfo
+}
+
 module.exports = {
   initContext,
   initContextWithAgentString,
@@ -614,5 +679,8 @@ module.exports = {
   tipoDeSolicitante,
   tipoDeSolicitanteToSelect,
   getCustomerProvinciaForRequestBono,
-  tieneEmpresasFunction
+  tieneEmpresasFunction,
+  getNumberOfPartners,
+  getColaboradoresDNI,
+  getColaboradoresInfo,
 };
