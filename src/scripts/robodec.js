@@ -1,5 +1,7 @@
 const { chromium } = require("playwright");
 const { del } = require("request");
+const path = require("path");
+const fs = require("fs");
 
 require("dotenv").config();
 
@@ -169,6 +171,16 @@ const selectMenuGotByLabelNotExact = async (page, label, select, delayTime) => {
 
 const selectMenuGotByLabelInFrame = async (frame, label, select, delayTime) => {
   await frame.getByLabel(label, { exact: true }).selectOption(select);
+  delayTime && delay(delayTime);
+};
+
+const selectMenuGotByLabelInFrameNotExact = async (
+  frame,
+  label,
+  select,
+  delayTime
+) => {
+  await frame.getByLabel(label, { exact: false }).selectOption(select);
   delayTime && delay(delayTime);
 };
 
@@ -535,12 +547,18 @@ const codigoSegmentoToClick = async (page, segmento) => {
   await delay(2000);
 };
 
+// const tipoDeSolicitante = (customer) => {
+//   let autonomo = "autoempleo";
+//   let empresa = "empresa";
+//   return customer.Num_trabajadores === "Menos de 3 trabajadores"
+//     ? autonomo
+//     : empresa;
+// };
+
 const tipoDeSolicitante = (customer) => {
   let autonomo = "autoempleo";
   let empresa = "empresa";
-  return customer.Num_trabajadores === "Menos de 3 trabajadores"
-    ? autonomo
-    : empresa;
+  return customer.Autónomo === "Sí" ? autonomo : empresa;
 };
 
 const tipoDeSolicitanteToSelect = async (frame, locator, solicitante) => {
@@ -557,9 +575,7 @@ const getCustomerProvinciaForRequestBono = async (customer) => {
 const tieneEmpresasFunction = (customer) => {
   let siTiene = "Si";
   let noTiene = "No";
-  return customer.Num_trabajadores === "Menos de 3 trabajadores"
-    ? noTiene
-    : siTiene;
+  return customer.Tiene_Empresas_Vinculadas === "Sí" ? siTiene : noTiene;
 };
 
 const getNumberOfPartners = (customer) => {
@@ -590,7 +606,7 @@ const getNumberOfPartners = (customer) => {
 };
 
 const getColaboradoresDNI = (customer) => {
-  let colaboradoresDNIArr = customer.NIF_Colaboradores.split(" ");
+  let colaboradoresDNIArr = customer.NIF_Colaboradores.split("/");
   console.log("Colaboradores DNI Array:", colaboradoresDNIArr);
 
   if (colaboradoresDNIArr.includes(customer.NIF_NIE)) {
@@ -618,7 +634,7 @@ const getColaboradoresInfo = (customer) => {
 
     if (colaboradoresDNIArr[i] === undefined) {
       console.error("DNI undefined for index", i);
-      continue; // Skip this iteration as DNI is undefined
+      continue;
     }
 
     console.log("Before accessing DNI:", colaboradoresDNIArr[i]);
@@ -648,6 +664,279 @@ const getColaboradoresInfo = (customer) => {
   return colaboradoresInfo;
 };
 
+const selectGotByLocatorInFrame = async (
+  page,
+  locator,
+  select,
+  timeOutTime,
+  delayTime
+) => {
+  frame = await handleIframe(page, ".iframeTasks");
+
+  const filterOptions = {
+    hasText: select,
+  };
+
+  timeOutTime && (filterOptions.timeout = timeOutTime);
+
+  await frame.locator(locator).filter(filterOptions).click();
+
+  delayTime && delay(delayTime);
+};
+
+const selectIAE = async (page, customer) => {
+  frame = await handleIframe(page, ".iframeTasks");
+
+  try {
+    await frame.waitForSelector(
+      '[id="formRenderer_codigo_actividad_iae_chosen"]',
+      { state: "visible" }
+    );
+
+    await frame.click('[id="formRenderer_codigo_actividad_iae_chosen"]');
+
+    await frame.waitForSelector("ul li.active-result", {
+      state: "visible",
+    });
+
+    await frame.click(`li.active-result:has-text("${customer.IAE}")`);
+  } catch (error) {
+    console.error("Error selecting IAE:", error);
+    throw error;
+  }
+
+  await delay(2000);
+};
+
+const stepVerificacionesIniciales = async (page, customer) => {
+  let frame = await handleIframe(page, ".iframeTasks");
+
+  const solicitante = tipoDeSolicitante(customer);
+
+  await tipoDeSolicitanteToSelect(
+    frame,
+    '[id="formRenderer:soli_empresa_autoempleo"]',
+    solicitante
+  );
+
+  await selectGotByOptionInFrame(
+    frame,
+    '[id="formRenderer:representante_tipo"]',
+    "Representante voluntario"
+  );
+
+  await selectGotByOptionInFrame(
+    frame,
+    '[id="formRenderer:representante_tipo_voluntario"]',
+    "Persona Física"
+  );
+
+  const basePath = path.join(
+    "/Users",
+    "Ruben",
+    "Desktop",
+    "DECLARANDO 2",
+    "RPA",
+    "kitdigital",
+    "Autoriza_Representante_Voluntario"
+  );
+
+  const customerFileName = `REPVOL${customer.NIF_NIE}.pdf`;
+  console.log("customerFileName", customerFileName);
+
+  const filePath = path.join(basePath, customerFileName);
+
+  fs.access(filePath, fs.constants.R_OK, (err) => {
+    if (err) {
+      console.error("Cannot read the file:", err);
+    } else {
+      console.log("File is readable.");
+    }
+  });
+
+  await frame.waitForLoadState("load");
+
+  if (customer.Num_trabajadores === "Menos de 3 trabajadores") {
+    await frame.setInputFiles(
+      "#formRenderer\\:file_C02201_C022SO\\:file",
+      filePath
+    );
+  } else if (customer.Num_trabajadores === "Entre 3 y 9 trabajadores") {
+    await frame.setInputFiles(
+      "#formRenderer\\:file_C01501_C015SO\\:file",
+      filePath
+    );
+    // } else {
+    //   await frame.setInputFiles(
+    //     "#formRenderer\\:file_C00501_C005SO\\:file",
+    //     filePath
+    //   )
+    // }
+    //?ESTO DE ARRIBA, PARA CUANDO HAGAMOS EMPRESAS DEL SEGMENTO III
+
+    await delay(10000);
+
+    if (customer.Autónomo === "Sí") {
+      await fillByLabelInFrame(
+        frame,
+        "Persona de contacto de la Persona física (autónomo)",
+        customer.Nombre,
+        2000
+      );
+
+      await fillByLabelInFrame(
+        frame,
+        "Teléfono móvil de la Persona física (autónomo)",
+        customer.Tlf,
+        2000
+      );
+
+      await fillByLabelInFrame(
+        frame,
+        "Email contacto de la Persona física (autónomo)",
+        customer.Email,
+        2000
+      );
+    } else {
+      await fillByLabelInFrame(
+        frame,
+        "Persona de contacto de la Pyme o Microempresa",
+        customer.Nombre,
+        2000
+      );
+
+      await fillByLabelInFrame(
+        frame,
+        "Teléfono móvil de la Pyme o Microempresa",
+        customer.Tlf,
+        2000
+      );
+
+      await fillByLabelInFrame(
+        frame,
+        "Email contacto de la Pyme o Microempresa",
+        customer.Email,
+        2000
+      );
+    }
+  }
+
+  const provincia = await getCustomerProvinciaForRequestBono(customer);
+  await selectMenuGotByLabelInFrame(
+    frame,
+    "Provincia de su domicilio fiscal",
+    provincia,
+    2000
+  );
+
+  const tieneEmpresas = tieneEmpresasFunction(customer);
+  await frame.getByLabel(tieneEmpresas, { exact: true }).click();
+  await delay(2000);
+
+  await fillByLabelInFrame(frame, "Persona de contacto", "Jorge Ferrando");
+
+  await fillByLabelInFrame(frame, "Teléfono móvil", "615830090");
+
+  await fillByLabelInFrame(frame, "Email contacto", "kitdigital.kd@gmail.com");
+
+  await selectGotByRoleInFrame(frame, "link", "Siguiente");
+};
+
+const stepAutonomosColaboradores = async (page, customer) => {
+  frame = await handleIframe(page, ".iframeTasks");
+
+  let partnerData = getNumberOfPartners(customer);
+  let numberOfPartners = partnerData.numeroDeSocios;
+  console.log("numero de socios", numberOfPartners);
+
+  if (numberOfPartners === "0") {
+    await selectGotByRoleInFrame(frame, "link", "Siguiente");
+  } else {
+    await selectGotByOptionInFrame(
+      frame,
+      '[id="formRenderer:autonomos_colaboradores_numero"]',
+      numberOfPartners
+    );
+
+    await frame
+      .getByLabel(
+        "Declaro responsablemente que los autónomos colaboradores declarados en el presente formulario han ejercido su actividad en exclusiva para la persona física (autónomo) solicitante durante el periodo de referencia considerado para el cálculo de la plantilla media de trabajadores. Este periodo se indica en las bases de la convocatoria.",
+        { exact: true }
+      )
+      .click();
+    await delay(2000);
+
+    let colaboradoresInfo = getColaboradoresInfo(customer);
+
+    for (let index = 0; index < colaboradoresInfo.length; index++) {
+      let colaboradorInfo = colaboradoresInfo[index];
+      console.log(
+        "DNI:",
+        colaboradorInfo.dni,
+        "Name:",
+        colaboradorInfo.name,
+        "Surname:",
+        colaboradorInfo.surname
+      );
+
+      await frame
+        .locator(`[id="formRenderer:AC_${index + 1}_autonomo_nif"]`)
+        .fill(colaboradorInfo.dni.toString());
+
+      await delay(2000);
+
+      await frame
+        .locator(`[id="formRenderer:AC_${index + 1}_autonomo_nombre"]`)
+        .fill(colaboradorInfo.name.toString());
+
+      await delay(2000);
+
+      await frame
+        .locator(`[id="formRenderer:AC_${index + 1}_autonomo_apellidos"]`)
+        .fill(colaboradorInfo.surname.toString());
+    }
+    await selectGotByRoleInFrame(frame, "link", "Siguiente");
+  }
+};
+
+const stepFirmaDeclaraciones = async (page) => {
+  frame = await handleIframe(page, ".iframeTasks");
+
+  await frame.locator('[id="formRenderer:check_declaracion"]').click();
+
+  await delay(2000);
+
+  await selectGotByRoleInFrame(frame, "link", "Siguiente");
+
+  frame = await handleIframe(page, ".iframeTasks");
+
+  await frame.locator('[id="formRenderer:check_declaracion_2"]').click();
+
+  await delay(2000);
+
+  await selectGotByRoleInFrame(frame, "link", "Siguiente");
+
+  await delay(2000);
+
+  frame = await handleIframe(page, ".iframeTasks");
+
+  await frame.locator('[id="formRenderer:check_declaracion_3"]').click();
+
+  await delay(2000);
+
+  await selectGotByRoleInFrame(frame, "link", "Siguiente");
+
+  await delay(2000);
+
+  frame = await handleIframe(page, ".iframeTasks");
+
+  await frame.locator('[id="formRenderer:check_declaracion_4"]').click();
+
+  await delay(2000);
+
+  await selectGotByRoleInFrame(frame, "link", "Siguiente");
+};
+
 module.exports = {
   initContext,
   initContextWithAgentString,
@@ -673,6 +962,7 @@ module.exports = {
   selectMenuGotByLabel,
   selectMenuGotByLabelNotExact,
   selectMenuGotByLabelInFrame,
+  selectMenuGotByLabelInFrameNotExact,
   selectGotByLocator,
   selectGotByOptionInFrame,
   numRandomValue,
@@ -714,4 +1004,9 @@ module.exports = {
   getNumberOfPartners,
   getColaboradoresDNI,
   getColaboradoresInfo,
+  selectGotByLocatorInFrame,
+  selectIAE,
+  stepVerificacionesIniciales,
+  stepAutonomosColaboradores,
+  stepFirmaDeclaraciones,
 };
