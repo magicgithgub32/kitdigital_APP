@@ -7,6 +7,7 @@ require("dotenv").config();
 
 const initContext = async ({ url } = {}) => {
   const browser = await chromium.launch({ headless: false });
+
   const page = await browser.newPage();
 
   if (url) {
