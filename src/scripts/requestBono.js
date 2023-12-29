@@ -13,6 +13,7 @@ const {
   selectGotByLocatorInFrame,
   fillByLabelInFrame,
   selectMenuGotByLabelInFrameNotExact,
+  selectIAE,
 } = require("./robodec");
 
 const { exec } = require("child_process");
