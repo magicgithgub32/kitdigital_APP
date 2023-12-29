@@ -169,7 +169,7 @@ const requestBono = async () => {
     await page.waitForSelector("text=Finalizar", { state: "visible" });
     await page.click("text=Finalizar");
 
-    // await closeContext(browser);
+    await closeContext(browser);
 
     return { success: true, message: "Bono requested succesfully", customer };
   } catch (error) {
@@ -178,6 +178,6 @@ const requestBono = async () => {
   }
 };
 
-requestBono();
+// requestBono();
 
 // module.exports = requestBono;
