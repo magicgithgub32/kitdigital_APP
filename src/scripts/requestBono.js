@@ -48,7 +48,7 @@ const requestBono = async () => {
     Localidad: "Barcelona//Barcelona//Cataluña",
     Autónomos_Colaboradores: "",
     NIF_Colaboradores: "",
-    IAE: "B01",
+    IAE: "647.1",
     Autónomo: "Sí",
     Tiene_Empresas_Vinculadas: "No",
   };
@@ -153,9 +153,21 @@ const requestBono = async () => {
 
     await selectGotByRoleInFrame(frame, "link", "Siguiente");
 
-    await frame.locator('[id="formRenderer:check_obligaciones"]').click();
+    await page.waitForSelector("text=Siguiente", { state: "visible" });
+    await page.click("text=Siguiente");
 
-    await selectGotByRoleInFrame(frame, "link", "Siguiente");
+    await page.waitForSelector("text=Firmar", { state: "visible" });
+    await page.click("text=Firmar");
+
+    await page.click('a.button[title="Firma con certificado local"]');
+
+    await page.click("#buttonSign");
+
+    await page.waitForSelector("text=Presentar", { state: "visible" });
+    await page.click("text=Presentar");
+
+    await page.waitForSelector("text=Finalizar", { state: "visible" });
+    await page.click("text=Finalizar");
 
     // await closeContext(browser);
 
@@ -166,6 +178,6 @@ const requestBono = async () => {
   }
 };
 
-// requestBono();
+requestBono();
 
 // module.exports = requestBono;
