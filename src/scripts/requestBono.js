@@ -3,145 +3,117 @@ const {
   initContext,
   delay,
   handleIframe,
-  tipoDeSegmento,
   codigoSegmentoToClick,
-  tipoDeSolicitante,
-  tipoDeSolicitanteToSelect,
-  getCustomerProvinciaForRequestBono,
-  tieneEmpresasFunction,
-  selectGotByOptionInFrame,
-  fillByLabelInFrame,
-  selectMenuGotByLabelInFrame,
+  tipoDeSegmento,
+  selectGotByRole,
   selectGotByRoleInFrame,
-  getNumberOfPartners,
-  getColaboradoresInfo,
+  stepFirmaDeclaraciones,
+  stepAutonomosColaboradores,
+  stepVerificacionesIniciales,
+  selectGotByLocatorInFrame,
+  fillByLabelInFrame,
+  selectMenuGotByLabelInFrameNotExact,
+  selectIAE,
 } = require("./robodec");
 
 const { exec } = require("child_process");
-const fs = require("fs");
 const request = require("request");
 const { chromium } = require("playwright");
-const path = require("path");
-
+const { log } = require("console");
 
 const requestBono_URL =
   "https://sede.red.gob.es/convocatorias-y-ayudas?field_fecha_fin_plazo_value=1";
 
 const requestBono = async () => {
   let customer = {
-    Nombre: "Amparo Ruiz",
-    Tlf: "666666666",
-    Email: "amparor@gmail.es",
-    Num_trabajadores: "Menos de 3 trabajadores",
-    NIF_NIE: "20473233X",
-    Localidad: "Azaila//Teruel//Aragón",
+    Nombre: "Francisco Javier Camps Monerris",
+    Tlf: "625059895",
+    Email: "martacamps93@hotmail.com",
+    Num_trabajadores: "Entre 3 y 9 trabajadores",
+    NIF_NIE: "43391052B",
+    Localidad: "Barcelona//Barcelona//Cataluña",
+    Autónomos_Colaboradores: "",
+    NIF_Colaboradores: "",
+    IAE: "647.1",
+    Autónomo: "Sí",
+    Tiene_Empresas_Vinculadas: "No",
   };
 
-    try {
-      const { page, browser } = await initContext({
-        url: requestBono_URL,
-      });
-    
-    let segmento = tipoDeSegmento(customer)
+  try {
+    const { page, browser } = await initContext({
+      url: requestBono_URL,
+    });
 
-    await codigoSegmentoToClick(page, segmento, delay)
+    const segmento = tipoDeSegmento(customer);
 
-    await page.getByRole("link", { name: "Acceder al trámite" }).click();
-    await delay(2000);
+    await codigoSegmentoToClick(page, segmento, delay);
+
+    await selectGotByRole(page, "link", "Acceder al trámite");
 
     await page
-      .getByRole("group", { name: "Acceso mediante certificado" })
+      .getByRole("group", { name: "Acceso mediante certificado digital." })
       .getByRole("button")
       .click();
 
-      page.on("dialog", async (dialog) => {
-        console.log(dialog.message())
-        await dialog.accept()
-      })
+    await delay(5000);
 
-//    await delay(25000);
+    await stepVerificacionesIniciales(page, customer);
 
-    let frame = await handleIframe(page, ".iframeTasks");
-
-    const solicitante = tipoDeSolicitante(customer)
-
-    await tipoDeSolicitanteToSelect(frame,'[id="formRenderer:soli_empresa_autoempleo"]',solicitante);
-
-    await selectGotByOptionInFrame(frame,'[id="formRenderer:representante_tipo"]', "Representante voluntario");
-
-    await selectGotByOptionInFrame(frame,'[id="formRenderer:representante_tipo_voluntario"]', "Persona Física");
-
-    const basePath = path.join(
-      //CHECK PATH
-      "/OneDrive",
-      "Escritorio",
-      "kitdigital_APP",
-      "Autoriza_Representante_Voluntario"
-    );
-
-    const customerFileName = `REPVOL${customer.NIF_NIE}.pdf`;
-
-    const filePath = path.join(basePath, customerFileName);
-
-    fs.access(filePath, fs.constants.R_OK, (err) => {
-      if (err) {
-        console.error("Cannot read the file:", err);
-      } else {
-        console.log("File is readable.");
-      }
-    });
-
-    await frame.setInputFiles(
-      "#formRenderer\\:file_C02201_C022SO\\:file",
-      filePath
-    );
-    await delay(20000)
-
-    await fillByLabelInFrame(frame,"Persona de contacto de la Persona física (autónomo)", customer.Nombre )
-
-    await fillByLabelInFrame(frame,"Teléfono móvil de la Persona física (autónomo)", customer.Tlf)
-
-    await fillByLabelInFrame(frame,"Email contacto de la Persona física (autónomo)", customer.Email)
-
-    const provincia = await getCustomerProvinciaForRequestBono(customer);
-    await selectMenuGotByLabelInFrame(frame, "Provincia de su domicilio fiscal", provincia, 2000)
-
-    const tieneEmpresas = tieneEmpresasFunction(customer);
-    await frame.getByLabel(tieneEmpresas, {exact: true});
     await delay(2000);
 
-    await fillByLabelInFrame(frame, "Persona de contacto", "Jorge Ferrando");
+    await stepAutonomosColaboradores(page, customer);
 
-    await fillByLabelInFrame(frame, "Teléfono móvil","615830090");
-
-    await fillByLabelInFrame(frame, "Email de contacto", "kitdigital.kd@gmail.com");
-
-    await selectGotByRoleInFrame(frame, "link","Siguiente");
+    await delay(2000);
 
     frame = await handleIframe(page, ".iframeTasks");
 
-    let partnerData = getNumberOfPartners(customer);
-    let numberOfPartners = partnerData.numeroDeSocios;
-    console.log("Num. de socios", numberOfPartners);
+    await selectGotByRoleInFrame(frame, "link", "Siguiente");
 
-    if(numberOfPartners === "0") {
-      await selectGotByRoleInFrame(frame, "link", "Siguiente");
-    } else {
-      await selectGotByOptionInFrame(frame, '[id=formRenderer:autonomos_colaboradores_numero]',numberOfPartners);
+    await delay(2000);
 
-      await frame.getByLabel("Declaro responsablemente que los autónomos colaboradores declarados en el presente formulario han ejercido su actividad en exclusiva", {exact: true}).click();
-      await delay(2000);
+    // if (customer.Num_trabajadores === "Menos de 3 trabajadores") {
+    //PARECE QUE ES LO MISMO PARA TODOS LOS SEGMENTOS, CON LO QUE AHORRAMOS ESTE IF-ELSE
 
-      let colaboradoresInfo = getColaboradoresInfo(customer);
+    await stepFirmaDeclaraciones(page);
 
-      for(let colaboradorInfo of colaboradoresInfo) {
-        await frame.locator('[id="formRenderer:AC_1_autonomos_nif]').fill(colaboradorInfo.dni.toString());
+    await selectIAE(page, customer);
 
-        
-      }
-    }
+    frame = await handleIframe(page, ".iframeTasks");
 
-    //await closeContext(browser);
+    await fillByLabelInFrame(
+      frame,
+      "Importe en euros de las ayudas de minimis recibidas",
+      "0",
+      2000
+    );
+
+    await selectGotByRoleInFrame(frame, "link", "Siguiente");
+
+    frame = await handleIframe(page, ".iframeTasks");
+
+    await frame.locator('[id="formRenderer:check_obligaciones"]').click();
+
+    await delay(2000);
+
+    await selectGotByRoleInFrame(frame, "link", "Siguiente");
+
+    await page.waitForSelector("text=Siguiente", { state: "visible" });
+    await page.click("text=Siguiente");
+
+    await page.waitForSelector("text=Firmar", { state: "visible" });
+    await page.click("text=Firmar");
+
+    await page.click('a.button[title="Firma con certificado local"]');
+
+    await page.click("#buttonSign");
+
+    await page.waitForSelector("text=Presentar", { state: "visible" });
+    await page.click("text=Presentar");
+
+    await page.waitForSelector("text=Finalizar", { state: "visible" });
+    await page.click("text=Finalizar");
+
+    await closeContext(browser);
 
     return { success: true, message: "Bono requested succesfully", customer };
   } catch (error) {
@@ -150,8 +122,6 @@ const requestBono = async () => {
   }
 };
 
-requestBono();
+ requestBono();
 
-
-//module.exports = requestBono
-
+// module.exports = requestBono;
