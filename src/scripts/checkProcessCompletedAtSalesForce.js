@@ -4,8 +4,6 @@ const {
   openSalesforceAndGoToCustomerAccount,
   saveChangesAtSalesforce,
   selectGotByText,
-  selectGotByRole,
-  delay,
 } = require("./robodec");
 
 const checkProcessCompletedAtSalesForce = async (customer) => {
@@ -13,19 +11,10 @@ const checkProcessCompletedAtSalesForce = async (customer) => {
     const { page, context, browser } =
       await openSalesforceAndGoToCustomerAccount(customer);
 
-    await selectGotByRole(
-      page,
-      "button",
-      "Edit KD - Substage tramitación robot"
-    );
-    await delay(2000);
-    await page.waitForLoadState("domcontentloaded");
-
     await clickAtLabel(
       page,
       "KD - Substage tramitación robot, Test de autodiagnóstico hecho"
     );
-
     await page.waitForLoadState("domcontentloaded");
 
     await selectGotByText(page, "Tramitación robot completada", {
