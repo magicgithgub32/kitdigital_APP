@@ -7,6 +7,7 @@ require("dotenv").config();
 
 const initContext = async ({ url } = {}) => {
   const browser = await chromium.launch({ headless: false });
+  // const browser = await chromium.launch();
 
   const page = await browser.newPage();
 
@@ -112,7 +113,13 @@ const fillByLabel = async (page, label, value, delayTime) => {
   delayTime && (await delay(delayTime));
 };
 
+// const fillByLabelInFrame = async (frame, label, value, delayTime) => {
+//   await frame.getByLabel(label, { exact: true }).fill(value);
+//   delayTime && (await delay(delayTime));
+// };
+
 const fillByLabelInFrame = async (frame, label, value, delayTime) => {
+  await frame.waitForSelector(`text=${label}`, { state: "visible" });
   await frame.getByLabel(label, { exact: true }).fill(value);
   delayTime && (await delay(delayTime));
 };
@@ -767,61 +774,62 @@ const stepVerificacionesIniciales = async (page, customer) => {
       "#formRenderer\\:file_C01501_C015SO\\:file",
       filePath
     );
-    // } else {
-    //   await frame.setInputFiles(
-    //     "#formRenderer\\:file_C00501_C005SO\\:file",
-    //     filePath
-    //   )
-    // }
-    //?ESTO DE ARRIBA, PARA CUANDO HAGAMOS EMPRESAS DEL SEGMENTO III
+  }
+  // } else {
+  //   await frame.setInputFiles(
+  //     "#formRenderer\\:file_C00501_C005SO\\:file",
+  //     filePath
+  //   )
+  // }
+  //?ESTO DE ARRIBA, PARA CUANDO HAGAMOS EMPRESAS DEL SEGMENTO III
 
-    await delay(10000);
+  await delay(10000);
 
-    if (customer.Autónomo === "Sí") {
-      await fillByLabelInFrame(
-        frame,
-        "Persona de contacto de la Persona física (autónomo)",
-        customer.Nombre,
-        2000
-      );
+  if (customer.Autónomo === "Sí") {
+    await fillByLabelInFrame(
+      frame,
+      "Persona de contacto de la Persona física (autónomo)",
+      customer.Nombre,
+      2000
+    );
 
-      await fillByLabelInFrame(
-        frame,
-        "Teléfono móvil de la Persona física (autónomo)",
-        customer.Tlf,
-        2000
-      );
+    await fillByLabelInFrame(
+      frame,
+      "Teléfono móvil de la Persona física (autónomo)",
+      customer.Tlf,
+      2000
+    );
 
-      await fillByLabelInFrame(
-        frame,
-        "Email contacto de la Persona física (autónomo)",
-        customer.Email,
-        2000
-      );
-    } else {
-      await fillByLabelInFrame(
-        frame,
-        "Persona de contacto de la Pyme o Microempresa",
-        customer.Nombre,
-        2000
-      );
+    await fillByLabelInFrame(
+      frame,
+      "Email contacto de la Persona física (autónomo)",
+      customer.Email,
+      2000
+    );
+  } else {
+    await fillByLabelInFrame(
+      frame,
+      "Persona de contacto de la Pyme o Microempresa",
+      customer.Nombre,
+      2000
+    );
 
-      await fillByLabelInFrame(
-        frame,
-        "Teléfono móvil de la Pyme o Microempresa",
-        customer.Tlf,
-        2000
-      );
+    await fillByLabelInFrame(
+      frame,
+      "Teléfono móvil de la Pyme o Microempresa",
+      customer.Tlf,
+      2000
+    );
 
-      await fillByLabelInFrame(
-        frame,
-        "Email contacto de la Pyme o Microempresa",
-        customer.Email,
-        2000
-      );
-    }
+    await fillByLabelInFrame(
+      frame,
+      "Email contacto de la Pyme o Microempresa",
+      customer.Email,
+      2000
+    );
   }
 
+  await delay(8000);
   const provincia = await getCustomerProvinciaForRequestBono(customer);
   await selectMenuGotByLabelInFrame(
     frame,
@@ -840,6 +848,7 @@ const stepVerificacionesIniciales = async (page, customer) => {
 
   await fillByLabelInFrame(frame, "Email contacto", "kitdigital.kd@gmail.com");
 
+  await delay(5000);
   await selectGotByRoleInFrame(frame, "link", "Siguiente");
 };
 

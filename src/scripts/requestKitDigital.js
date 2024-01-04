@@ -8,8 +8,9 @@ const checkAceleraPymeAccountActivatedInSalesforce = require("./checkAceleraPyme
 const diagnosisDigitalTest = require("./diagnosisDigitalTest");
 const checkReadyToRequestBonoAtSalesforce = require("./checkReadyToRequestBonoAtSalesforce");
 const requestBono = require("./requestBono");
+const checkProcessCompletedAtSalesForce = require("./checkProcessCompletedAtSalesforce");
 
-const requestKitDigital = async (uploadedFilePath) => {
+async function requestKitDigital(uploadedFilePath) {
   try {
     let customers = await readXlx(uploadedFilePath);
 
@@ -21,7 +22,6 @@ const requestKitDigital = async (uploadedFilePath) => {
 
     const results = [];
     for (const customer of customers) {
-      //Si queremos que sólo marque en Salesforce en caso de que no haya fallos en el script:
       let result = { customer, flow: {} };
 
       const registeredInAceleraPyme = await registerInAceleraPyme(customer);
@@ -66,7 +66,7 @@ const requestKitDigital = async (uploadedFilePath) => {
 
       // if (bonoRequested && bonoRequested.flow.success) {
       //   checkedProcessCompletedAtSalesForce =
-      //     await checkedProcessCompletedAtSalesForce(customer);
+      //     await checkProcessCompletedAtSalesForce(customer);
       // }
       // result.flow.checkedProcessCompletedAtSalesForce =
       //   checkedProcessCompletedAtSalesForce;
@@ -79,6 +79,6 @@ const requestKitDigital = async (uploadedFilePath) => {
     console.error("Error reading or processing excel file:", error);
     return [];
   }
-};
+}
 
 module.exports = requestKitDigital;

@@ -10,9 +10,7 @@ const {
   stepFirmaDeclaraciones,
   stepAutonomosColaboradores,
   stepVerificacionesIniciales,
-  selectGotByLocatorInFrame,
   fillByLabelInFrame,
-  selectMenuGotByLabelInFrameNotExact,
   selectIAE,
 } = require("./robodec");
 
@@ -40,15 +38,15 @@ const requestBono_URL =
 
 const requestBono = async () => {
   let customer = {
-    Nombre: "Francisco Javier Camps Monerris",
-    Tlf: "625059895",
-    Email: "martacamps93@hotmail.com",
-    Num_trabajadores: "Entre 3 y 9 trabajadores",
-    NIF_NIE: "43391052B",
-    Localidad: "Barcelona//Barcelona//Cataluña",
+    Nombre: "José Luis González Juan",
+    Tlf: "651900477",
+    Email: "absoluteelda@hotmail.com",
+    Num_trabajadores: "Menos de 3 trabajadores",
+    NIF_NIE: "22141080S",
+    Localidad: "Elda//Alicante/Alacant//Comunitat Valenciana",
     Autónomos_Colaboradores: "",
     NIF_Colaboradores: "",
-    IAE: "647.1",
+    IAE: "651.1 - COM.MEN.PTOS.TEXTILES PARA EL HOGAR",
     Autónomo: "Sí",
     Tiene_Empresas_Vinculadas: "No",
   };
@@ -111,7 +109,7 @@ const requestBono = async () => {
       .getByRole("button")
       .click();
 
-    await delay(5000);
+    await delay(20000);
 
     await stepVerificacionesIniciales(page, customer);
 
@@ -167,7 +165,7 @@ const requestBono = async () => {
     await page.click("text=Presentar");
 
     await page.waitForSelector("text=Finalizar", { state: "visible" });
-    await page.click("text=Finalizar");
+    // await page.click("text=Finalizar");
 
     await closeContext(browser);
 
@@ -180,4 +178,4 @@ const requestBono = async () => {
 
 // requestBono();
 
-// module.exports = requestBono;
+module.exports = requestBono;

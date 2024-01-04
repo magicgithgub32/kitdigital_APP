@@ -44,4 +44,4 @@ const checkProcessCompletedAtSalesForce = async (customer) => {
 
 // checkProcessCompletedAtSalesForce();
 
-export default checkProcessCompletedAtSalesForce;
+module.exports = checkProcessCompletedAtSalesForce;
