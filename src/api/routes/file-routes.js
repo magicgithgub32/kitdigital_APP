@@ -13,7 +13,7 @@ router.post(
 );
 
 router.post(
-  "/requestBono",
+  "/processRequestBono",
   uploadExcelFile.single("excelFile"),
   processRequestBono
 );

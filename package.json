@@ -7,6 +7,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "requestKitDigital": "node src/scripts/requestKitDigital.js",
+    "processRequestBonoGeneral": "node src/scripts/processRequestBonoGeneral.js",
     "registerInAceleraPyme": "node src/scripts/registerInAceleraPyme.js",
     "selectCustomerPassw": "node src/scripts/selectCustomerPassw.js",
     "diagnosisDigitalTest": "node src/scripts/diagnosisDigitalTest.js",

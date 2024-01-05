@@ -36,20 +36,20 @@ const runAppleScript = () => {
 const requestBono_URL =
   "https://sede.red.gob.es/convocatorias-y-ayudas?field_fecha_fin_plazo_value=1";
 
-const requestBono = async () => {
-  let customer = {
-    Nombre: "José Luis González Juan",
-    Tlf: "651900477",
-    Email: "absoluteelda@hotmail.com",
-    Num_trabajadores: "Menos de 3 trabajadores",
-    NIF_NIE: "22141080S",
-    Localidad: "Elda//Alicante/Alacant//Comunitat Valenciana",
-    Autónomos_Colaboradores: "",
-    NIF_Colaboradores: "",
-    IAE: "651.1 - COM.MEN.PTOS.TEXTILES PARA EL HOGAR",
-    Autónomo: "Sí",
-    Tiene_Empresas_Vinculadas: "No",
-  };
+const requestBono = async (customer) => {
+  // let customer = {
+  //   Nombre: "MARTIN ENRIQUE CAIRA",
+  //   Tlf: "674943554",
+  //   Email: "cingraf77@hotmail.com",
+  //   Num_trabajadores: "Entre 3 y 9 trabajadores",
+  //   NIF_NIE: "X8798859W",
+  //   Localidad: "Castelldefels//Barcelona//Cataluña",
+  //   Autónomos_Colaboradores: "Juan Gálvez Pizarro/Alvaro Miguel Gálvez Camino//Raúl Gálvez Camino/Ignacio Gálvez Camino",
+  //   NIF_Colaboradores: "5148747J/47080687D/5166275S",
+  //   IAE: "989.2 - SERV. ORGANIZ. CONGRESOS,ASAMBLEAS, ...",
+  //   Autónomo: "Sí",
+  //   Tiene_Empresas_Vinculadas: "No",
+  // };
 
   try {
     const { page, browser } = await initContext({
@@ -165,7 +165,7 @@ const requestBono = async () => {
     await page.click("text=Presentar");
 
     await page.waitForSelector("text=Finalizar", { state: "visible" });
-    // await page.click("text=Finalizar");
+    await page.click("text=Finalizar");
 
     await closeContext(browser);
 

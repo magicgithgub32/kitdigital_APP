@@ -591,9 +591,11 @@ const getNumberOfPartners = (customer) => {
 
   let autonomosColaboradoresDef = [];
 
-  if (customer.Autónomos_Colaboradores.length > 0) {
-    let autonomosColaboradoresArr = customer.Autónomos_Colaboradores.split("/");
-    for (let i = 0; i < autonomosColaboradoresArr.length; i++) {
+  // if (customer.Autónomos_Colaboradores.length > 0) {
+  if (customer.Autónomos_Colaboradores !== null) {
+    let autonomosColaboradoresArr =
+      customer.Autónomos_Colaboradores?.split("/");
+    for (let i = 0; i < autonomosColaboradoresArr?.length; i++) {
       if (
         autonomosColaboradoresArr[i].toLowerCase() !==
         customer.Nombre.toLowerCase()
@@ -829,7 +831,7 @@ const stepVerificacionesIniciales = async (page, customer) => {
     );
   }
 
-  await delay(8000);
+  // await delay(2000);
   const provincia = await getCustomerProvinciaForRequestBono(customer);
   await selectMenuGotByLabelInFrame(
     frame,

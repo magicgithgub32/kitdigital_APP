@@ -10,7 +10,7 @@ const checkReadyToRequestBonoAtSalesforce = require("./checkReadyToRequestBonoAt
 const requestBono = require("./requestBono");
 const checkProcessCompletedAtSalesForce = require("./checkProcessCompletedAtSalesforce");
 
-async function requestKitDigital(uploadedFilePath) {
+const requestKitDigital = async (uploadedFilePath) => {
   try {
     let customers = await readXlx(uploadedFilePath);
 
@@ -79,6 +79,6 @@ async function requestKitDigital(uploadedFilePath) {
     console.error("Error reading or processing excel file:", error);
     return [];
   }
-}
+};
 
 module.exports = requestKitDigital;

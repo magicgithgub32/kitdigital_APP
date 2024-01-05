@@ -1,4 +1,6 @@
 const fs = require("fs").promises;
+const processRequestBonoGeneral = require("../../scripts/processRequestBonoGeneral");
+const requestBono = require("../../scripts/requestBono");
 const requestKitDigital = require("../../scripts/requestKitDigital");
 require("dotenv").config();
 
@@ -46,7 +48,7 @@ const processRequestBono = async (req, res, next) => {
 
     const filePath = req.file.path;
 
-    const processingResult = await requestKitDigital(filePath);
+    const processingResult = await processRequestBonoGeneral(filePath);
     console.log("Processing Result:", processingResult);
 
     res.setHeader("Content-Type", "application/json");
