@@ -741,7 +741,7 @@ const stepVerificacionesIniciales = async (page, customer) => {
     "Persona Física"
   );
 
-  const basePath = path.join(
+  /*const basePath = path.join(
     "/Users",
     "Ruben",
     "Desktop",
@@ -749,12 +749,26 @@ const stepVerificacionesIniciales = async (page, customer) => {
     "RPA",
     "kitdigital",
     "Autoriza_Representante_Voluntario"
-  );
+  ); */
+
+ /* const basePath = path.join(
+    "C:",
+    "OneDrive",
+    "Escritorio",
+    "DECLARANDO",
+    "kitdigital",
+    "Autoriza_Representante_Voluntario"
+  ); */
+
+  const basePath = ('C:\\OneDrive\\Escritorio\\DECLARANDO\\kitdigital\\Autoriza_Representante_Voluntario')
 
   const customerFileName = `REPVOL${customer.NIF_NIE}.pdf`;
   console.log("customerFileName", customerFileName);
 
   const filePath = path.join(basePath, customerFileName);
+
+
+  console.log("filePath", filePath)
 
   fs.access(filePath, fs.constants.R_OK, (err) => {
     if (err) {
