@@ -25,19 +25,6 @@ const requestBono_URL =
   "https://sede.red.gob.es/convocatorias-y-ayudas?field_fecha_fin_plazo_value=1";
 
 const requestBono = async () => {
-  let customer = {
-    Nombre: "Francisco Javier Camps Monerris",
-    Tlf: "625059895",
-    Email: "martacamps93@hotmail.com",
-    Num_trabajadores: "Entre 3 y 9 trabajadores",
-    NIF_NIE: "43391052B",
-    Localidad: "Barcelona//Barcelona//Cataluña",
-    Autónomos_Colaboradores: "",
-    NIF_Colaboradores: "",
-    IAE: "647.1",
-    Autónomo: "Sí",
-    Tiene_Empresas_Vinculadas: "No",
-  };
 
   try {
     const { page, browser } = await initContext({
@@ -55,7 +42,7 @@ const requestBono = async () => {
       .getByRole("button")
       .click();
 
-    await delay(5000);
+    await delay(20000);
 
     await stepVerificacionesIniciales(page, customer);
 
