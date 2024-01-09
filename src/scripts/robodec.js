@@ -591,17 +591,16 @@ const getNumberOfPartners = (customer) => {
 
   let autonomosColaboradoresDef = [];
 
-  // if (customer.Autónomos_Colaboradores.length > 0) {
   if (customer.Autónomos_Colaboradores !== null) {
     let autonomosColaboradoresArr =
       customer.Autónomos_Colaboradores?.split("/");
     for (let i = 0; i < autonomosColaboradoresArr?.length; i++) {
-      if (
-        autonomosColaboradoresArr[i].toLowerCase() !==
-        customer.Nombre.toLowerCase()
-      ) {
-        autonomosColaboradoresDef.push(autonomosColaboradoresArr[i]);
-      }
+      // if (
+      //   autonomosColaboradoresArr[i].toLowerCase() !==
+      //   customer.Nombre.toLowerCase()
+      // ) {
+      autonomosColaboradoresDef.push(autonomosColaboradoresArr[i]);
+      // }
     }
     numeroDeSocios = autonomosColaboradoresDef.length.toString();
   }
@@ -619,12 +618,12 @@ const getColaboradoresDNI = (customer) => {
   let colaboradoresDNIArr = customer.NIF_Colaboradores.split("/");
   console.log("Colaboradores DNI Array:", colaboradoresDNIArr);
 
-  if (colaboradoresDNIArr.includes(customer.NIF_NIE)) {
-    let customerDNIIndex = colaboradoresDNIArr.indexOf(customer.NIF_NIE);
-    colaboradoresDNIArr.splice(customerDNIIndex, 1);
+  // if (colaboradoresDNIArr.includes(customer.NIF_NIE)) {
+  //   let customerDNIIndex = colaboradoresDNIArr.indexOf(customer.NIF_NIE);
+  //   colaboradoresDNIArr.splice(customerDNIIndex, 1);
 
-    console.log("Colaboradores DNI Array:", colaboradoresDNIArr);
-  }
+  //   console.log("Colaboradores DNI Array:", colaboradoresDNIArr);
+  // }
   return colaboradoresDNIArr;
 };
 
@@ -741,7 +740,7 @@ const stepVerificacionesIniciales = async (page, customer) => {
     "Persona Física"
   );
 
-  /*const basePath = path.join(
+  const basePath = path.join(
     "/Users",
     "Ruben",
     "Desktop",
@@ -749,26 +748,25 @@ const stepVerificacionesIniciales = async (page, customer) => {
     "RPA",
     "kitdigital",
     "Autoriza_Representante_Voluntario"
-  ); */
+  );
 
- /* const basePath = path.join(
-    "C:",
-    "OneDrive",
-    "Escritorio",
-    "DECLARANDO",
-    "kitdigital",
-    "Autoriza_Representante_Voluntario"
-  ); */
+  //  /* const basePath = path.join(
+  //     "C:",
+  //     "OneDrive",
+  //     "Escritorio",
+  //     "DECLARANDO",
+  //     "kitdigital",
+  //     "Autoriza_Representante_Voluntario"
+  //   ); */
 
-  const basePath = ('C:\\OneDrive\\Escritorio\\DECLARANDO\\kitdigital\\Autoriza_Representante_Voluntario')
+  //   const basePath = ('C:\\OneDrive\\Escritorio\\DECLARANDO\\kitdigital\\Autoriza_Representante_Voluntario')
 
   const customerFileName = `REPVOL${customer.NIF_NIE}.pdf`;
   console.log("customerFileName", customerFileName);
 
   const filePath = path.join(basePath, customerFileName);
 
-
-  console.log("filePath", filePath)
+  console.log("filePath", filePath);
 
   fs.access(filePath, fs.constants.R_OK, (err) => {
     if (err) {
@@ -799,7 +797,7 @@ const stepVerificacionesIniciales = async (page, customer) => {
   // }
   //?ESTO DE ARRIBA, PARA CUANDO HAGAMOS EMPRESAS DEL SEGMENTO III
 
-  await delay(10000);
+  await delay(15000);
 
   if (customer.Autónomo === "Sí") {
     await fillByLabelInFrame(
@@ -845,7 +843,6 @@ const stepVerificacionesIniciales = async (page, customer) => {
     );
   }
 
-  // await delay(2000);
   const provincia = await getCustomerProvinciaForRequestBono(customer);
   await selectMenuGotByLabelInFrame(
     frame,
@@ -880,13 +877,13 @@ const stepAutonomosColaboradores = async (page, customer) => {
   } else {
     await selectGotByOptionInFrame(
       frame,
-      '[id="formRenderer:autonomos_colaboradores_numero"]',
+      '[id="formRenderer:autonomos_societarios_numero"]',
       numberOfPartners
     );
 
     await frame
       .getByLabel(
-        "Declaro responsablemente que los autónomos colaboradores declarados en el presente formulario han ejercido su actividad en exclusiva para la persona física (autónomo) solicitante durante el periodo de referencia considerado para el cálculo de la plantilla media de trabajadores. Este periodo se indica en las bases de la convocatoria.",
+        "Declaro responsablemente que los autónomos societarios y/o familiares de socios declarados en el presente formulario han ejercido su actividad en exclusiva para la entidad solicitante durante el periodo de referencia considerado para el cálculo de la plantilla media de trabajadores. Este periodo se indica en las bases de la convocatoria.",
         { exact: true }
       )
       .click();
@@ -906,19 +903,19 @@ const stepAutonomosColaboradores = async (page, customer) => {
       );
 
       await frame
-        .locator(`[id="formRenderer:AC_${index + 1}_autonomo_nif"]`)
+        .locator(`[id="formRenderer:AS_${index + 1}_societario_nif"]`)
         .fill(colaboradorInfo.dni.toString());
 
       await delay(2000);
 
       await frame
-        .locator(`[id="formRenderer:AC_${index + 1}_autonomo_nombre"]`)
+        .locator(`[id="formRenderer:AS_${index + 1}_societario_nombre"]`)
         .fill(colaboradorInfo.name.toString());
 
       await delay(2000);
 
       await frame
-        .locator(`[id="formRenderer:AC_${index + 1}_autonomo_apellidos"]`)
+        .locator(`[id="formRenderer:AS_${index + 1}_societario_apellidos"]`)
         .fill(colaboradorInfo.surname.toString());
     }
     await selectGotByRoleInFrame(frame, "link", "Siguiente");
